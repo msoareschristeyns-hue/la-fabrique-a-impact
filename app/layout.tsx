@@ -1,0 +1,11 @@
+import './globals.css';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'La Fabrique à Impact | La RSE qui fait avancer votre PME',
+  description: 'Identifiez vos priorités RSE, passez à l’action et produisez les preuves qui comptent.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <html lang="fr"><body>{children}</body></html>;
+}
