@@ -1,0 +1,18 @@
+'use client';
+import Link from 'next/link';
+import {useEffect,useState,ReactNode} from 'react';
+import {usePathname,useRouter} from 'next/navigation';
+import {LayoutDashboard,ClipboardCheck,Target,ListChecks,FolderCheck,Activity,FileText,Sparkles,Building2,Settings,LogOut} from 'lucide-react';
+import {supabase} from '../lib/supabase';
+
+const nav=[
+ ['/dashboard/','Vue d’ensemble',LayoutDashboard],['/diagnostic/','Diagnostic RSE',ClipboardCheck],['/priorities/','Mes 3 priorités',Target],['/actions/','Plan d’action',ListChecks],['/proofs/','Mes preuves',FolderCheck],['/progress/','Ma progression',Activity],['/report/','Synthèse RSE',FileText],['/copilot/','Copilote RSE',Sparkles]
+] as const;
+
+export default function AppShell({children}:{children:ReactNode}){
+ const pathname=usePathname();const router=useRouter();const[company,setCompany]=useState('');const[ready,setReady]=useState(false);
+ useEffect(()=>{(async()=>{const {data:{user}}=await supabase.auth.getUser();if(!user){router.replace('/connexion/');return;}const {data}=await supabase.from('company_members').select('company_id,companies(name)').eq('user_id',user.id).limit(1).single();const row:any=data;setCompany(row?.companies?.name||'Mon entreprise');setReady(true)})()},[router]);
+ async function logout(){await supabase.auth.signOut();router.replace('/connexion/')}
+ if(!ready)return <main className="formPage"><div className="formWrap"><p>Chargement de votre espace entreprise…</p></div></main>;
+ return <main className="dash"><aside><Link href="/dashboard/" className="brand"><img className="brandLogo" src="/logo-la-fabrique-impact.svg" alt="La Fabrique à Impact"/></Link><div className="companyBadge"><Building2/><div><small>ENTREPRISE</small><b>{company}</b></div></div><nav>{nav.map(([href,label,Icon])=><Link key={href} className={pathname===href||pathname===href.slice(0,-1)?'active':''} href={href}><Icon/>{label}</Link>)}</nav><div className="sideBottom"><a className="settings"><Settings/>Paramètres</a><button className="settings shellLogout" onClick={logout}><LogOut/>Déconnexion</button></div></aside><section className="dashMain">{children}</section></main>
+}
