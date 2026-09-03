@@ -1,80 +1,20 @@
 'use client';
-
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import {useMemo,useState} from 'react';
 
-const questions = [
-  { id:'strategy', label:'Avez-vous formalisé vos engagements et objectifs RSE ?', pillar:'Stratégie & gouvernance' },
-  { id:'environment', label:'Suivez-vous vos principaux impacts environnementaux ?', pillar:'Environnement' },
-  { id:'social', label:'Avez-vous des actions structurées sur les conditions de travail et les compétences ?', pillar:'Social & conditions de travail' },
-  { id:'purchases', label:'Intégrez-vous des critères RSE dans vos achats et le choix des fournisseurs ?', pillar:'Achats responsables' },
-  { id:'territory', label:'Votre entreprise mène-t-elle des actions avec son territoire ou ses parties prenantes locales ?', pillar:'Ancrage territorial' },
-  { id:'clients', label:'Pouvez-vous fournir facilement des preuves RSE à vos clients et donneurs d’ordre ?', pillar:'Clients & marché' },
+type Q={id:string;label:string;pillar:string;key:string};
+const groups=[
+ {pillar:'Stratégie & gouvernance',key:'strategy',questions:['Vos engagements et objectifs RSE sont-ils formalisés ?','Une personne est-elle clairement responsable du pilotage de la démarche RSE ?','Suivez-vous régulièrement des objectifs ou indicateurs RSE ?']},
+ {pillar:'Environnement',key:'environment',questions:['Suivez-vous vos principaux impacts environnementaux (énergie, eau, déchets, émissions) ?','Avez-vous engagé des actions concrètes pour réduire vos consommations ou vos déchets ?','Mesurez-vous les résultats de vos actions environnementales ?']},
+ {pillar:'Social & conditions de travail',key:'social',questions:['Avez-vous des actions structurées sur la santé, la sécurité ou les conditions de travail ?','Les compétences et besoins de formation de vos collaborateurs sont-ils suivis ?','Suivez-vous des indicateurs sociaux simples (absentéisme, turnover, accidents, formation) ?']},
+ {pillar:'Achats responsables',key:'purchases',questions:['Intégrez-vous des critères RSE dans le choix de certains fournisseurs ?','Avez-vous formalisé vos attentes responsables auprès de vos fournisseurs ?','Évaluez-vous les risques ou performances RSE de vos fournisseurs stratégiques ?']},
+ {pillar:'Ancrage territorial',key:'territory',questions:['Identifiez-vous vos principales parties prenantes locales ?','Votre entreprise mène-t-elle des actions ou partenariats avec son territoire ?','Savez-vous mesurer ou valoriser votre contribution locale (emplois, achats locaux, partenariats) ?']},
+ {pillar:'Clients & marché',key:'clients',questions:['Pouvez-vous fournir facilement des preuves RSE à vos clients et donneurs d’ordre ?','Identifiez-vous les exigences RSE de vos principaux clients ou marchés ?','Valorisez-vous vos engagements RSE de manière factuelle dans vos offres ou réponses commerciales ?']}
 ];
-const levels = [
-  {label:'Pas encore', value:0},
-  {label:'Partiellement', value:1},
-  {label:'Oui, c’est structuré', value:2},
-];
-const sectorWeights:Record<string,Record<string,number>>={
-  'Industrie':{environment:18,purchases:14,social:8,clients:8},
-  'Commerce':{purchases:16,clients:14,social:8,environment:6},
-  'Services':{social:14,clients:12,strategy:8,environment:4},
-  'BTP':{environment:16,social:14,purchases:12,clients:8},
-  'Transport & logistique':{environment:18,social:12,purchases:10,clients:8},
-  'Autre':{strategy:8,clients:8,social:6,purchases:6}
-};
+const questions:Q[]=groups.flatMap(g=>g.questions.map((label,i)=>({id:`${g.key}_${i+1}`,label,pillar:g.pillar,key:g.key})));
+const levels=[{label:'Pas encore',value:0},{label:'En partie',value:1},{label:'Oui, c’est structuré',value:2}];
+const sectorWeights:Record<string,Record<string,number>>={'Industrie':{environment:18,purchases:14,social:8,clients:8},'Commerce':{purchases:16,clients:14,social:8,environment:6},'Services':{social:14,clients:12,strategy:8,environment:4},'BTP':{environment:16,social:14,purchases:12,clients:8},'Transport & logistique':{environment:18,social:12,purchases:10,clients:8},'Autre':{strategy:8,clients:8,social:6,purchases:6}};
 const effort:Record<string,number>={strategy:2,environment:3,social:3,purchases:2,territory:1,clients:2};
-
-function rankPriorities(answers:Record<string,number>,sector:string,size:string,maturity:string){
-  const sw=sectorWeights[sector]||sectorWeights.Autre;
-  return questions.map((q,index)=>{
-    const maturityGap=(2-(answers[q.id]??0))*30;
-    const sectorFit=sw[q.id]||0;
-    const clientUrgency=q.id==='clients'?16:q.id==='strategy'?8:q.id==='purchases'?7:0;
-    const sizeFactor=(size==='50–249'||size==='250+')&&(q.id==='strategy'||q.id==='social'||q.id==='purchases')?8:0;
-    const beginnerBoost=maturity==='Nous débutons'&&(q.id==='strategy'||q.id==='clients')?7:0;
-    const quickWin=(4-(effort[q.id]||2))*3;
-    const priorityScore=maturityGap+sectorFit+clientUrgency+sizeFactor+beginnerBoost+quickWin;
-    return {...q,value:answers[q.id]??0,priorityScore,index,reasons:{maturityGap,sectorFit,clientUrgency,sizeFactor,quickWin}};
-  }).sort((a,b)=>b.priorityScore-a.priorityScore||a.index-b.index);
-}
-
-export default function Diagnostic(){
-  const [step,setStep]=useState(0);
-  const [sector,setSector]=useState('');
-  const [size,setSize]=useState('');
-  const [maturity,setMaturity]=useState('');
-  const [answers,setAnswers]=useState<Record<string,number>>({});
-
-  const complete = sector && size && maturity;
-  const answered = Object.keys(answers).length;
-  const score = useMemo(()=> Math.round((Object.values(answers).reduce((a,b)=>a+b,0)/(questions.length*2))*100)||0,[answers]);
-  const ranked = useMemo(()=>rankPriorities(answers,sector,size,maturity),[answers,sector,size,maturity]);
-  const priorities=ranked.slice(0,3);
-
-  function finish(){
-    const result={sector,size,maturity,score,answers,priorities:priorities.map(p=>p.pillar),priorityScores:Object.fromEntries(ranked.map(p=>[p.pillar,p.priorityScore])),rankingVersion:'v2-contextual',date:new Date().toISOString()};
-    localStorage.setItem('fabrique-impact-diagnostic',JSON.stringify(result));
-    window.location.href='/dashboard/';
-  }
-
-  return <main className="formPage"><div className="formWrap">
-    <Link href="/" className="brand"><span className="brandMark">F</span><span>La Fabrique à Impact</span></Link>
-    <span className="kicker">DIAGNOSTIC EXPRESS · ÉTAPE {step+1}/2</span>
-    <h1>{step===0?'Commençons par votre entreprise.':'Où en êtes-vous aujourd’hui ?'}</h1>
-    <p>{step===0?'Quelques informations nous permettent de contextualiser vos futures priorités.':'6 questions pour identifier les sujets sur lesquels agir en premier.'}</p>
-    <div className="progress"><i style={{width:step===0?'50%':'100%'}}/></div>
-
-    {step===0 ? <div className="diagCard">
-      <label>Quel est votre secteur d’activité ?<select value={sector} onChange={e=>setSector(e.target.value)}><option value="" disabled>Sélectionnez votre secteur</option><option>Industrie</option><option>Commerce</option><option>Services</option><option>BTP</option><option>Transport & logistique</option><option>Autre</option></select></label>
-      <label>Combien de personnes travaillent dans l’entreprise ?<div className="choices">{['1–9','10–49','50–249','250+'].map(x=><button className={size===x?'selected':''} onClick={()=>setSize(x)} type="button" key={x}>{x}</button>)}</div></label>
-      <label>Votre démarche RSE aujourd’hui ?<select value={maturity} onChange={e=>setMaturity(e.target.value)}><option value="" disabled>Choisissez la situation la plus proche</option><option>Nous débutons</option><option>Quelques actions existent</option><option>Notre démarche est structurée</option></select></label>
-      <button className="button full" disabled={!complete} onClick={()=>setStep(1)}>Continuer le diagnostic →</button>
-    </div> : <div className="diagCard">
-      {questions.map((q,i)=><div className="diagnosticQuestion" key={q.id}><div><small>{String(i+1).padStart(2,'0')} · {q.pillar}</small><strong>{q.label}</strong></div><div className="choices">{levels.map(l=><button type="button" className={answers[q.id]===l.value?'selected':''} onClick={()=>setAnswers(a=>({...a,[q.id]:l.value}))} key={l.value}>{l.label}</button>)}</div></div>)}
-      <div className="diagnosticFooter"><button type="button" className="textButton" onClick={()=>setStep(0)}>← Retour</button><span>{answered}/6 réponses</span><button className="button" disabled={answered!==6} onClick={finish}>Voir mes résultats →</button></div>
-    </div>}
-    <div className="pillars">{questions.map(x=><span key={x.id}>✓ {x.pillar}</span>)}</div>
-  </div></main>
-}
+function pillarAverage(answers:Record<string,number>,key:string){const qs=questions.filter(q=>q.key===key);return qs.reduce((s,q)=>s+(answers[q.id]??0),0)/qs.length}
+function rankPriorities(answers:Record<string,number>,sector:string,size:string,maturity:string){const sw=sectorWeights[sector]||sectorWeights.Autre;return groups.map((g,index)=>{const avg=pillarAverage(answers,g.key);const maturityGap=(2-avg)*30;const sectorFit=sw[g.key]||0;const clientUrgency=g.key==='clients'?16:g.key==='strategy'?8:g.key==='purchases'?7:0;const sizeFactor=(size==='50–249'||size==='250+')&&(g.key==='strategy'||g.key==='social'||g.key==='purchases')?8:0;const beginnerBoost=maturity==='Nous débutons'&&(g.key==='strategy'||g.key==='clients')?7:0;const quickWin=(4-(effort[g.key]||2))*3;const priorityScore=Math.round(maturityGap+sectorFit+clientUrgency+sizeFactor+beginnerBoost+quickWin);return{pillar:g.pillar,key:g.key,average:avg,priorityScore,index}}).sort((a,b)=>b.priorityScore-a.priorityScore||a.index-b.index)}
+export default function Diagnostic(){const[step,setStep]=useState(0);const[sector,setSector]=useState('');const[size,setSize]=useState('');const[maturity,setMaturity]=useState('');const[answers,setAnswers]=useState<Record<string,number>>({});const complete=sector&&size&&maturity;const answered=Object.keys(answers).length;const score=useMemo(()=>Math.round((Object.values(answers).reduce((a,b)=>a+b,0)/(questions.length*2))*100)||0,[answers]);const ranked=useMemo(()=>rankPriorities(answers,sector,size,maturity),[answers,sector,size,maturity]);function finish(){const pillarScores=Object.fromEntries(groups.map(g=>[g.pillar,Math.round(pillarAverage(answers,g.key)*50)]));const result={sector,size,maturity,score,answers,pillarScores,priorities:ranked.slice(0,3).map(p=>p.pillar),priorityScores:Object.fromEntries(ranked.map(p=>[p.pillar,p.priorityScore])),rankingVersion:'v3-18q-contextual',date:new Date().toISOString()};localStorage.setItem('fabrique-impact-diagnostic',JSON.stringify(result));window.location.href='/dashboard/'}return <main className="formPage"><div className="formWrap"><Link href="/" className="brand"><span className="brandMark">F</span><span>La Fabrique à Impact</span></Link><span className="kicker">DIAGNOSTIC RSE · {step===0?'VOTRE ENTREPRISE':'18 QUESTIONS · ENV. 5 MIN'}</span><h1>{step===0?'Commençons par votre entreprise.':'Faisons le point sur vos pratiques.'}</h1><p>{step===0?'Quelques informations nous permettent de contextualiser vos futures priorités.':'Répondez simplement selon votre situation actuelle. Il ne s’agit pas d’un audit : l’objectif est de trouver où agir en premier.'}</p><div className="progress"><i style={{width:step===0?'20%':`${20+80*(answered/questions.length)}%`}}/></div>{step===0?<div className="diagCard"><label>Quel est votre secteur d’activité ?<select value={sector} onChange={e=>setSector(e.target.value)}><option value="" disabled>Sélectionnez votre secteur</option><option>Industrie</option><option>Commerce</option><option>Services</option><option>BTP</option><option>Transport & logistique</option><option>Autre</option></select></label><label>Combien de personnes travaillent dans l’entreprise ?<div className="choices">{['1–9','10–49','50–249','250+'].map(x=><button className={size===x?'selected':''} onClick={()=>setSize(x)} type="button" key={x}>{x}</button>)}</div></label><label>Votre démarche RSE aujourd’hui ?<select value={maturity} onChange={e=>setMaturity(e.target.value)}><option value="" disabled>Choisissez la situation la plus proche</option><option>Nous débutons</option><option>Quelques actions existent</option><option>Notre démarche est structurée</option></select></label><button className="button full" disabled={!complete} onClick={()=>setStep(1)}>Commencer les 18 questions →</button></div>:<div className="diagCard"><div className="diagCounter"><b>{answered}</b><span>/ 18 réponses</span></div>{groups.map((g,gi)=><section className="questionGroup" key={g.key}><div className="questionGroupHead"><span>{String(gi+1).padStart(2,'0')}</span><div><small>PILIER</small><h2>{g.pillar}</h2></div></div>{questions.filter(q=>q.key===g.key).map((q,i)=><div className="diagnosticQuestion" key={q.id}><div><small>Question {i+1}/3</small><strong>{q.label}</strong></div><div className="choices">{levels.map(l=><button type="button" className={answers[q.id]===l.value?'selected':''} onClick={()=>setAnswers(a=>({...a,[q.id]:l.value}))} key={l.value}>{l.label}</button>)}</div></div>)}</section>)}<div className="diagnosticFooter"><button type="button" className="textButton" onClick={()=>setStep(0)}>← Retour</button><span>{answered}/18 réponses</span><button className="button" disabled={answered!==18} onClick={finish}>Découvrir mes 3 priorités →</button></div></div>}<div className="pillars">{groups.map(x=><span key={x.key}>✓ {x.pillar}</span>)}</div></div></main>}
