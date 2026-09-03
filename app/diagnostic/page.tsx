@@ -16,6 +16,29 @@ const levels = [
   {label:'Partiellement', value:1},
   {label:'Oui, c’est structuré', value:2},
 ];
+const sectorWeights:Record<string,Record<string,number>>={
+  'Industrie':{environment:18,purchases:14,social:8,clients:8},
+  'Commerce':{purchases:16,clients:14,social:8,environment:6},
+  'Services':{social:14,clients:12,strategy:8,environment:4},
+  'BTP':{environment:16,social:14,purchases:12,clients:8},
+  'Transport & logistique':{environment:18,social:12,purchases:10,clients:8},
+  'Autre':{strategy:8,clients:8,social:6,purchases:6}
+};
+const effort:Record<string,number>={strategy:2,environment:3,social:3,purchases:2,territory:1,clients:2};
+
+function rankPriorities(answers:Record<string,number>,sector:string,size:string,maturity:string){
+  const sw=sectorWeights[sector]||sectorWeights.Autre;
+  return questions.map((q,index)=>{
+    const maturityGap=(2-(answers[q.id]??0))*30;
+    const sectorFit=sw[q.id]||0;
+    const clientUrgency=q.id==='clients'?16:q.id==='strategy'?8:q.id==='purchases'?7:0;
+    const sizeFactor=(size==='50–249'||size==='250+')&&(q.id==='strategy'||q.id==='social'||q.id==='purchases')?8:0;
+    const beginnerBoost=maturity==='Nous débutons'&&(q.id==='strategy'||q.id==='clients')?7:0;
+    const quickWin=(4-(effort[q.id]||2))*3;
+    const priorityScore=maturityGap+sectorFit+clientUrgency+sizeFactor+beginnerBoost+quickWin;
+    return {...q,value:answers[q.id]??0,priorityScore,index,reasons:{maturityGap,sectorFit,clientUrgency,sizeFactor,quickWin}};
+  }).sort((a,b)=>b.priorityScore-a.priorityScore||a.index-b.index);
+}
 
 export default function Diagnostic(){
   const [step,setStep]=useState(0);
@@ -27,10 +50,11 @@ export default function Diagnostic(){
   const complete = sector && size && maturity;
   const answered = Object.keys(answers).length;
   const score = useMemo(()=> Math.round((Object.values(answers).reduce((a,b)=>a+b,0)/(questions.length*2))*100)||0,[answers]);
-  const priorities = useMemo(()=>questions.map(q=>({...q,value:answers[q.id] ?? 0})).sort((a,b)=>a.value-b.value).slice(0,3),[answers]);
+  const ranked = useMemo(()=>rankPriorities(answers,sector,size,maturity),[answers,sector,size,maturity]);
+  const priorities=ranked.slice(0,3);
 
   function finish(){
-    const result={sector,size,maturity,score,answers,priorities:priorities.map(p=>p.pillar),date:new Date().toISOString()};
+    const result={sector,size,maturity,score,answers,priorities:priorities.map(p=>p.pillar),priorityScores:Object.fromEntries(ranked.map(p=>[p.pillar,p.priorityScore])),rankingVersion:'v2-contextual',date:new Date().toISOString()};
     localStorage.setItem('fabrique-impact-diagnostic',JSON.stringify(result));
     window.location.href='/dashboard/';
   }
