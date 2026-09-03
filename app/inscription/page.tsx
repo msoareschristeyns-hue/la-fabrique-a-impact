@@ -13,14 +13,18 @@ export default function InscriptionPage() {
 
   async function submit(e:FormEvent){
     e.preventDefault(); setLoading(true); setError(''); setMessage('');
-    const { data, error: signError } = await supabase.auth.signUp({email:form.email,password:form.password,options:{data:{first_name:form.firstName,last_name:form.lastName}}});
-    if(signError || !data.user){ setLoading(false); setError(signError?.message || "Impossible de créer le compte."); return; }
-    if(!data.session){ setLoading(false); setMessage('Compte créé. Consultez votre email pour confirmer votre inscription, puis connectez-vous.'); return; }
-    const { data:company,error:companyError }=await supabase.from('companies').insert({name:form.company,created_by:data.user.id}).select('id').single();
-    if(companyError || !company){ setLoading(false); setError("Compte créé, mais l’entreprise n’a pas pu être initialisée. Connectez-vous puis réessayez."); return; }
-    const { error:memberError }=await supabase.from('company_members').insert({company_id:company.id,user_id:data.user.id,role:'owner'});
+    const redirectTo = `${window.location.origin}/connexion/`;
+    const { data, error: signError } = await supabase.auth.signUp({
+      email:form.email,
+      password:form.password,
+      options:{
+        emailRedirectTo:redirectTo,
+        data:{first_name:form.firstName,last_name:form.lastName,company_name:form.company}
+      }
+    });
     setLoading(false);
-    if(memberError){ setError("Entreprise créée, mais votre accès propriétaire n’a pas pu être finalisé."); return; }
+    if(signError || !data.user){ setError(signError?.message || "Impossible de créer le compte."); return; }
+    if(!data.session){ setMessage('Compte créé. Consultez le nouvel email reçu pour confirmer votre adresse, puis connectez-vous.'); return; }
     router.push('/diagnostic/');
   }
 
