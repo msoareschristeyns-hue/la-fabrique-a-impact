@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import SiteShell from '../components/SiteShell';
 
 export const metadata: Metadata = {
   title: 'La Fabrique à Impact | La RSE qui fait avancer votre PME',
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="fr"><body>{children}</body></html>;
+  return <html lang="fr"><body><SiteShell>{children}</SiteShell></body></html>;
 }
