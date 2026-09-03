@@ -3,7 +3,7 @@ import {ReactNode} from 'react';
 import {usePathname} from 'next/navigation';
 import AppShell from './AppShell';
 
-const privateRoutes=['/diagnostic','/priorities','/actions','/proofs','/progress','/report','/copilot'];
+const privateRoutes=['/dashboard','/diagnostic','/priorities','/actions','/proofs','/progress','/report','/copilot'];
 
 export default function SiteShell({children}:{children:ReactNode}){
  const pathname=usePathname();
