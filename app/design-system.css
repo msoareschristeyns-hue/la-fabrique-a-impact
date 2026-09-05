@@ -8,144 +8,90 @@
   --app-shadow:0 8px 28px rgba(16,47,57,.055);
   --app-radius:16px;
   --app-radius-sm:10px;
-  --app-content:1120px;
+  --app-content:1180px;
 }
 
 .dash{background:var(--app-bg)!important;min-height:100vh}
-.dashMain{padding:34px 40px 56px!important;background:var(--app-bg);min-height:100vh}
+.dashMain{padding:30px 36px 56px!important;background:var(--app-bg);min-height:100vh}
 .dashMain>header,.dashMain>.metrics,.dashMain>.pillarResults,.dashMain>.sectionTitle,.dashMain>.dashPriorities,.dashMain>.reportBanner,.dashMain>.copilotBar,.dashMain>.onboardingCard,.dashMain>.emptyJourney{width:min(var(--app-content),100%);margin-left:auto!important;margin-right:auto!important}
 .modulePage{width:min(var(--app-content),100%)!important;margin:0 auto!important}
-.moduleHead{margin:0 0 24px!important;padding-bottom:20px;border-bottom:1px solid #e5ecea}
-.moduleHead .kicker{font-size:10px;letter-spacing:1.15px}
-.moduleHead h1,.dashMain>header h1{font-size:clamp(32px,3vw,40px)!important;line-height:1.12!important;letter-spacing:-.7px;margin:7px 0 8px!important;max-width:780px!important}
-.moduleHead p,.actionLead,.dashMain>header p{font-size:14px!important;line-height:1.65!important;max-width:760px!important;margin-bottom:0}
-.dashMain>header{padding:0 0 20px;border-bottom:1px solid #e5ecea;margin-bottom:24px!important;display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
-.dashMain>header .globalScore{flex:0 0 auto;min-width:170px}
+
+/* One header language for every private page */
+.moduleHead,.dashMain>header,.journeyHero{background:transparent!important;border:0!important;border-bottom:1px solid #dfe8e5!important;border-radius:0!important;box-shadow:none!important;padding:0 0 22px!important;margin:0 0 24px!important;min-height:0!important}
+.moduleHead .kicker,.journeyHero .kicker{font-size:10px;letter-spacing:1.15px}
+.moduleHead h1,.dashMain>header h1,.journeyHero h1{font-size:clamp(32px,2.7vw,40px)!important;line-height:1.12!important;letter-spacing:-.65px!important;margin:7px 0 8px!important;max-width:820px!important}
+.moduleHead p,.actionLead,.dashMain>header p,.journeyHero p{font-size:14px!important;line-height:1.6!important;max-width:780px!important;margin:0!important;color:#667c82!important}
+.dashMain>header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.dashMain>header .globalScore{flex:0 0 auto;min-width:165px}
 
 .dashMain h2:not(.moduleHead h2){font-family:Inter,Arial,sans-serif}
 .dashMain h3{font-family:Inter,Arial,sans-serif}
 .sectionTitle h2,.settingsTitle h2,.proofSectionTitle h2{font-size:20px!important;line-height:1.25;margin:0}
 
-.settingsCard,.diagCard,.proofForm,.progressSection,.chatPanel,.onboardingCard,.globalScore,.metrics article,.priorityGrid article,.dashPriorities article,.proofGrid article,.learningCard,.workspaceCard,.journeyCard,.adminEditor,.adminList{
+.settingsCard,.diagCard,.proofForm,.progressSection,.chatPanel,.onboardingCard,.globalScore,.metrics article,.priorityGrid article,.dashPriorities article,.proofGrid article,.learningCard,.workspaceCard,.journeyCard,.adminEditor,.adminList,.journeyTimeline article{
   border:1px solid var(--app-border)!important;
-  border-radius:var(--app-radius)!important;
-  box-shadow:var(--app-shadow)!important;
+  border-radius:14px!important;
+  box-shadow:0 5px 18px rgba(16,47,57,.045)!important;
   background:var(--app-surface)!important;
 }
-.settingsCard,.diagCard,.proofForm,.progressSection,.adminEditor,.adminList{padding:24px!important}
+.settingsCard,.diagCard,.proofForm,.progressSection,.adminEditor,.adminList{padding:22px!important}
 
-.button,.btn,.secondaryButton{min-height:42px;padding:10px 16px!important;border-radius:9px!important;font-size:13px!important;font-weight:800!important}
+.button,.btn,.secondaryButton{min-height:40px;padding:9px 15px!important;border-radius:9px!important;font-size:12.5px!important;font-weight:800!important}
 input,select,textarea{font-size:14px!important}
-.settingsCard input,.settingsCard select,.diagCard select,.proofForm input,.proofForm select,.proofForm textarea,.adminEditor input,.adminEditor select,.adminEditor textarea{min-height:44px;padding:10px 12px!important;border-radius:9px!important;border-color:var(--app-border-strong)!important}
+.settingsCard input,.settingsCard select,.diagCard select,.proofForm input,.proofForm select,.proofForm textarea,.adminEditor input,.adminEditor select,.adminEditor textarea{min-height:42px;padding:9px 11px!important;border-radius:9px!important;border-color:var(--app-border-strong)!important}
 textarea{line-height:1.5}
 
-.metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin-top:0!important;margin-bottom:28px!important}
-.metrics article{padding:16px!important;min-height:96px}
-.metrics b{font-size:24px!important}
+.metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin-top:0!important;margin-bottom:24px!important}
+.metrics article{padding:15px!important;min-height:88px}
+.metrics article>span{font-size:11px;color:#667c82}.metrics b{font-size:23px!important}.metrics small{font-size:10px}
 .dashPriorities,.priorityGrid,.proofGrid{gap:12px!important}
-.dashPriorities article,.priorityGrid article,.proofGrid article{padding:18px!important}
-.pillarLayout{grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr)!important;gap:22px!important}
-.pillarResults{margin-top:0!important;margin-bottom:22px!important;padding:24px!important}
-.sectionTitle{margin-top:22px!important;margin-bottom:12px!important}
-.reportBanner{margin-top:12px!important}
-.copilotBar{margin-top:14px!important}
+.dashPriorities article,.priorityGrid article,.proofGrid article{padding:17px!important}
+.pillarLayout{grid-template-columns:minmax(0,1.45fr) minmax(280px,.72fr)!important;gap:20px!important}
+.pillarResults{margin-top:0!important;margin-bottom:20px!important;padding:22px!important}
+.sectionTitle{margin-top:20px!important;margin-bottom:11px!important}
+.reportBanner{margin-top:11px!important}
+.copilotBar{margin-top:12px!important}
 
-.settingsGrid{grid-template-columns:minmax(0,1fr) 340px!important;gap:18px!important;align-items:start}
-.settingsCard{gap:16px!important}
-.settingsTitle{gap:10px!important;padding-bottom:14px!important}
+.settingsGrid{grid-template-columns:minmax(0,1fr) 330px!important;gap:18px!important;align-items:start}
+.settingsCard{gap:15px!important}
+.settingsTitle{gap:10px!important;padding-bottom:13px!important}
 .settingsTitle>svg{width:20px!important}
-.settingsTitle h2{font-family:Inter,Arial,sans-serif!important;font-size:19px!important}
+.settingsTitle h2{font-family:Inter,Arial,sans-serif!important;font-size:18px!important}
 .settingsCard>label{gap:6px!important;font-size:12px!important}
-.accountRow{padding:12px 0!important}
-.securityNote{padding:14px!important}
+.accountRow{padding:11px 0!important}
+.securityNote{padding:13px!important}
 
-.diagCard{gap:14px!important}
-.questionGroup{padding:22px 0 8px;border-bottom:1px solid #e8efed}
+.diagCard{gap:13px!important}
+.questionGroup{padding:20px 0 7px;border-bottom:1px solid #e8efed}
 .questionGroup:last-of-type{border-bottom:0}
-.questionGroupHead{margin-bottom:8px!important;gap:10px!important}
-.questionGroupHead>span{font-size:25px!important}
-.questionGroupHead h2{font-family:Inter,Arial,sans-serif!important;font-size:22px!important;margin:2px 0!important}
-.diagnosticQuestion{padding:15px 0!important;gap:10px!important}
-.diagnosticQuestion strong{font-size:14px;line-height:1.4}
+.questionGroupHead{margin-bottom:7px!important;gap:10px!important}
+.questionGroupHead>span{font-size:24px!important}
+.questionGroupHead h2{font-family:Inter,Arial,sans-serif!important;font-size:21px!important;margin:2px 0!important}
+.diagnosticQuestion{padding:14px 0!important;gap:9px!important}
+.diagnosticQuestion strong{font-size:13.5px;line-height:1.4}
 .diagnosticQuestion small{font-size:10px;color:#7d9195;margin-right:6px}
 .diagnosticQuestion .choices{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
-.choices button{min-height:42px!important;padding:9px 11px!important;font-size:13px!important;border-radius:9px!important}
-.diagnosticFooter{position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);margin:16px -24px -24px;padding:14px 24px;border-top:1px solid var(--app-border);z-index:5}
+.choices button{min-height:40px!important;padding:8px 10px!important;font-size:12.5px!important;border-radius:9px!important}
+.diagnosticFooter{position:sticky;bottom:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);margin:14px -22px -22px;padding:13px 22px;border-top:1px solid var(--app-border);z-index:5}
 .pillars{font-size:11px;line-height:1.5}
 
-.actionProgress{gap:10px!important;margin:24px 0 32px!important}
-.actionProgress div{padding:16px!important;border-radius:12px!important}
+.actionProgress{gap:10px!important;margin:22px 0 28px!important}
+.actionProgress div{padding:15px!important;border-radius:12px!important}
 .actionList{gap:10px!important}
-.actionList article{padding:16px!important;grid-template-columns:36px 1fr auto!important;border-radius:12px!important}
-.phaseNumber{width:38px!important;height:38px!important}
+.actionList article{padding:15px!important;grid-template-columns:34px 1fr auto!important;border-radius:12px!important}
+.phaseNumber{width:36px!important;height:36px!important}
 
-.proofFields{gap:12px!important}
-.proofGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-.proofForm{margin-bottom:26px!important}
-.proofHeader{margin-bottom:22px!important}
-.emptyProof{padding:38px!important}
+.proofFields{gap:12px!important}.proofGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.proofForm{margin-bottom:24px!important}.proofHeader{margin-bottom:20px!important}.emptyProof{padding:36px!important}
+.progressKpis{gap:10px!important;margin:22px 0!important}.progressKpis article{padding:17px!important;border-radius:13px!important}.progressKpis b{font-size:28px!important}.progressSection{margin:15px 0!important}
+.learningHero{gap:10px!important;margin:18px 0!important}.learningGrid,.capsuleGrid,.workspaceGrid,.libraryGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:13px!important}.learningCard,.workspaceCard{min-width:0}.learningCardBody{padding:17px!important}.librarySearch{min-height:42px}.learningToolbar{margin:13px 0 17px!important}
+.workspaceKpis{gap:10px!important;margin:18px 0 22px!important}.workspaceSection{margin-top:24px!important}.workspaceCard{padding:17px!important}
+.adminLayout{grid-template-columns:minmax(340px,.75fr) minmax(0,1.25fr)!important;gap:18px!important}.adminEditor{position:sticky!important;top:22px!important;gap:13px!important}.adminTabs{margin-bottom:17px!important}.adminList article{padding:12px 0!important}
+.reportBanner{padding:14px!important}.onboardingCard{padding:22px!important;margin-top:24px!important}.onboardingCard h2{font-size:23px!important}
 
-.progressKpis{gap:10px!important;margin:25px 0!important}
-.progressKpis article{padding:18px!important;border-radius:14px!important}
-.progressKpis b{font-size:29px!important}
-.progressSection{margin:16px 0!important}
+.companyBadge{margin-top:18px!important;padding:10px!important}.brandLogo{width:195px!important}.dash aside nav a,.settings{min-height:37px;padding:8px 10px!important;font-size:12.5px!important}.dash aside a,.dash aside a:visited,.dash aside a:hover,.dash aside a:active{color:inherit;text-decoration:none}
 
-.learningHero{gap:10px!important;margin:20px 0!important}
-.learningGrid,.capsuleGrid,.workspaceGrid,.libraryGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
-.learningCard,.workspaceCard{min-width:0}
-.learningCardBody{padding:18px!important}
-.librarySearch{min-height:44px}
-.learningToolbar{margin:14px 0 18px!important}
+/* Journey now uses the same header proportions as dashboard */
+.journeyOverall{grid-template-columns:115px 1fr!important;gap:16px!important;align-items:end!important;margin-top:19px!important}.journeyOverall b{font-size:29px!important}.journeyOverallTrack{height:8px!important}.journeyTimeline{gap:11px!important}.journeyTimeline article{padding:17px!important;grid-template-columns:44px minmax(0,1fr) 24px!important;gap:15px!important}.journeyTimeline article.current{border:1.5px solid #0797d5!important;box-shadow:0 5px 18px rgba(7,151,213,.08)!important}.journeyStepIcon{width:42px!important;height:42px!important;border-radius:11px!important}.journeyStepIcon svg{width:20px!important}.journeyStepMain h2{font-size:20px!important;margin:5px 0 3px!important}.journeyStepMain p{font-size:13px!important;line-height:1.5!important}.journeyStepProgress{margin:13px 0!important}.journeyStepActions{gap:7px!important}
 
-.workspaceKpis{gap:10px!important;margin:20px 0 24px!important}
-.workspaceSection{margin-top:26px!important}
-.workspaceCard{padding:18px!important}
-
-.adminLayout{grid-template-columns:minmax(340px,.75fr) minmax(0,1.25fr)!important;gap:18px!important}
-.adminEditor{position:sticky!important;top:24px!important;gap:13px!important}
-.adminTabs{margin-bottom:18px!important}
-.adminList article{padding:13px 0!important}
-
-.reportBanner{padding:15px!important}
-.onboardingCard{padding:24px!important;margin-top:26px!important}
-.onboardingCard h2{font-size:24px!important}
-
-.companyBadge{margin-top:20px!important;padding:10px!important}
-.brandLogo{width:200px!important}
-.dash aside nav a,.settings{min-height:38px;padding:9px 10px!important;font-size:12.5px!important}
-.dash aside a,.dash aside a:visited,.dash aside a:hover,.dash aside a:active{color:inherit;text-decoration:none}
-
-.journeyHero{padding:28px!important;margin-bottom:18px!important;border-radius:16px!important;box-shadow:var(--app-shadow)}
-.journeyHero h1{font-size:clamp(32px,3vw,40px)!important;line-height:1.12!important;letter-spacing:-.7px!important;margin:7px 0 8px!important}
-.journeyHero p{font-size:14px!important;line-height:1.65!important;margin-bottom:0!important}
-.journeyTimeline{gap:12px!important}
-.journeyTimeline article{padding:18px!important;border-radius:14px!important}
-.journeyStepIcon{width:44px!important;height:44px!important;border-radius:12px!important}
-.journeyStepMain h2{font-size:21px!important;margin:6px 0 4px!important}
-.journeyStepMain p{font-size:13.5px!important}
-
-@media(max-width:1100px){
-  .dashMain{padding:30px 28px 48px!important}
-  .settingsGrid{grid-template-columns:1fr!important}
-  .settingsGrid>.settingsCard:last-child{max-width:none}
-  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .proofGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .pillarLayout{grid-template-columns:1fr!important}
-  .adminLayout{grid-template-columns:1fr!important}
-  .adminEditor{position:static!important}
-}
-
-@media(max-width:760px){
-  .dashMain{padding:22px 16px 44px!important}
-  .moduleHead h1,.dashMain>header h1,.journeyHero h1{font-size:30px!important}
-  .dashMain>header{align-items:flex-start;flex-direction:column}
-  .dashMain>header .globalScore{width:100%}
-  .metrics,.progressKpis,.actionProgress,.learningGrid,.capsuleGrid,.workspaceGrid,.libraryGrid,.proofGrid{grid-template-columns:1fr!important}
-  .diagnosticQuestion .choices,.choices{grid-template-columns:1fr!important}
-  .diagnosticFooter{position:static;margin:12px 0 0;padding:14px 0 0;display:grid!important;grid-template-columns:1fr;gap:10px;border-top:1px solid var(--app-border)}
-  .diagnosticFooter .button{width:100%}
-  .proofFields{grid-template-columns:1fr!important}
-  .settingsCard{padding:18px!important}
-  .actionList article{grid-template-columns:32px 1fr!important}
-  .actionList article>*:last-child{grid-column:2}
-}
+@media(max-width:1100px){.dashMain{padding:28px 26px 46px!important}.settingsGrid{grid-template-columns:1fr!important}.settingsGrid>.settingsCard:last-child{max-width:none}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}.proofGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.pillarLayout{grid-template-columns:1fr!important}.adminLayout{grid-template-columns:1fr!important}.adminEditor{position:static!important}}
+@media(max-width:760px){.dashMain{padding:20px 15px 42px!important}.moduleHead h1,.dashMain>header h1,.journeyHero h1{font-size:29px!important}.dashMain>header{align-items:flex-start;flex-direction:column}.dashMain>header .globalScore{width:100%}.metrics,.progressKpis,.actionProgress,.learningGrid,.capsuleGrid,.workspaceGrid,.libraryGrid,.proofGrid{grid-template-columns:1fr!important}.diagnosticQuestion .choices,.choices{grid-template-columns:1fr!important}.diagnosticFooter{position:static;margin:12px 0 0;padding:13px 0 0;display:grid!important;grid-template-columns:1fr;gap:10px;border-top:1px solid var(--app-border)}.diagnosticFooter .button{width:100%}.proofFields{grid-template-columns:1fr!important}.settingsCard{padding:17px!important}.actionList article{grid-template-columns:32px 1fr!important}.actionList article>*:last-child{grid-column:2}.journeyOverall{grid-template-columns:1fr!important}.journeyTimeline article{grid-template-columns:40px 1fr!important}.journeyStateIcon{display:none!important}}
