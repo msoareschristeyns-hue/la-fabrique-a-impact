@@ -1,5 +1,6 @@
 import './globals.css';
 import './design-system.css';
+import './layout-fix.css';
 import type { Metadata } from 'next';
 import SiteShell from '../components/SiteShell';
 
