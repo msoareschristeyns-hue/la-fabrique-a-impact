@@ -16,19 +16,29 @@ export default function ConnexionPage() {
     e.preventDefault();
     if (loading) return;
     setLoading(true); setError('');
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email:email.trim(), password });
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email:email.trim().toLowerCase(), password });
     if (signInError || !data.user) {
       setLoading(false);
       setError('Email ou mot de passe incorrect, ou compte non confirmé.');
       return;
     }
-    const { data:membership, error:membershipError } = await supabase.from('company_members').select('company_id').eq('user_id',data.user.id).limit(1).maybeSingle();
+    let { data:membership, error:membershipError } = await supabase.from('company_members').select('company_id').eq('user_id',data.user.id).limit(1).maybeSingle();
+    if (!membership && !membershipError) {
+      const { error:provisionError } = await supabase.rpc('ensure_my_company_membership');
+      if (!provisionError) {
+        const retry = await supabase.from('company_members').select('company_id').eq('user_id',data.user.id).limit(1).maybeSingle();
+        membership = retry.data;
+        membershipError = retry.error;
+      } else {
+        membershipError = provisionError;
+      }
+    }
     setLoading(false);
-    if (membershipError) {
-      setError('Connexion réussie, mais votre espace entreprise ne peut pas être chargé pour le moment.');
+    if (membershipError || !membership) {
+      setError('Connexion réussie, mais votre espace entreprise n’a pas pu être préparé. Vérifiez que le nom de l’entreprise est bien associé à votre compte, puis réessayez.');
       return;
     }
-    router.push(membership ? '/dashboard/' : '/diagnostic/');
+    router.push('/dashboard/');
   }
 
   return <main className="auth-page"><section className="auth-card">
