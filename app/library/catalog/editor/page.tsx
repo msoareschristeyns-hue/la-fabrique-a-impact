@@ -1,257 +1,52 @@
 'use client';
 
-import Link from 'next/link';
-import {useEffect,useMemo,useState} from 'react';
-import {ArrowLeft,CheckCircle2,Eye,FilePenLine,Plus,Save,Sparkles} from 'lucide-react';
-import {supabase} from '../../../../lib/supabase';
-import {extractTemplateFields,humanizeTemplateField,msdgTemplateById} from '../../../../lib/msdgRseCatalog';
+import Link from'next/link';
+import{useEffect,useMemo,useState,type CSSProperties}from'react';
+import{ArrowLeft,CheckCircle2,Eye,FilePenLine,Plus,Save,Sparkles,ShieldAlert,BookOpen}from'lucide-react';
+import{supabase}from'../../../../lib/supabase';
+import{extractTemplateFields,humanizeTemplateField,msdgTemplateById,type MsdgCatalogTemplate}from'../../../../lib/msdgRseCatalog';
+import{sourceCatalogById,type SourceCatalogItem}from'../../../../lib/sourceCatalog';
 
-type Company={
-  name:string;
-  sector:string|null;
-  size_band:string|null;
-  logo_url:string|null;
-  brand_primary:string|null;
-  brand_secondary:string|null;
-};
+type Company={name:string;sector:string|null;size_band:string|null;logo_url:string|null;brand_primary:string|null;brand_secondary:string|null};
 
-function renderInline(value:string){
-  return value.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'$1');
+function escapeHtml(value:string){return value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function renderInline(value:string){return escapeHtml(value).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'$1')}
+function markdownToHtml(markdown:string){const lines=markdown.split('\n');let html='';let inList=false;let inTable=false;for(const raw of lines){const line=raw.trimEnd();if(line.startsWith('|')){const cells=line.split('|').slice(1,-1).map(x=>x.trim());if(cells.every(c=>/^[-:]+$/.test(c)))continue;if(!inTable){html+='<table><tbody>';inTable=true}html+='<tr>'+cells.map(c=>'<td>'+renderInline(c)+'</td>').join('')+'</tr>';continue}if(inTable){html+='</tbody></table>';inTable=false}if(/^# /.test(line)){if(inList){html+='</ul>';inList=false}html+=`<h1>${renderInline(line.slice(2))}</h1>`}else if(/^## /.test(line)){if(inList){html+='</ul>';inList=false}html+=`<h2>${renderInline(line.slice(3))}</h2>`}else if(/^### /.test(line)){if(inList){html+='</ul>';inList=false}html+=`<h3>${renderInline(line.slice(4))}</h3>`}else if(/^[-*] /.test(line)){if(!inList){html+='<ul>';inList=true}html+=`<li>${renderInline(line.slice(2))}</li>`}else if(/^\d+\. /.test(line)){if(!inList){html+='<ul>';inList=true}html+=`<li>${renderInline(line.replace(/^\d+\. /,''))}</li>`}else if(!line.trim()){if(inList){html+='</ul>';inList=false}}else html+=`<p>${renderInline(line)}</p>`}if(inList)html+='</ul>';if(inTable)html+='</tbody></table>';return html}
+
+function layoutFor(type:string):MsdgCatalogTemplate['layout']{if(type==='Plan')return'ACTION_PLAN';if(['Registre','Matrice','Reporting'].includes(type))return'REGISTER';if(['Analyse','Questionnaire','Checklist'].includes(type))return'ASSESSMENT';if(type==='Preuve')return'PROOF';if(['Rapport','Compte rendu'].includes(type))return'REPORT';return'POLICY'}
+function genericTemplate(source:SourceCatalogItem):MsdgCatalogTemplate{
+ const proof=source.model==='FICHE DE PREUVE V3';
+ const markdown=proof?`# ${source.title}\n\n**Entreprise :** {{nom_entreprise}}  \n**Référence catalogue :** ${source.id}  \n**Version :** {{version}}  \n**Date :** {{date}}\n\n## 1. Preuve originale à référencer\n{{preuve_1}}\n\n## 2. Objet et périmètre\n{{objet}}\n\n{{perimetre}}\n\n## 3. Contexte et enjeu associé\n{{enjeux}}\n\n## 4. Informations de traçabilité\n{{contenu_principal}}\n\n## 5. Responsable et validation\n- Responsable : {{responsable}}\n- Validation : {{validateur}}\n\n## 6. Contrôle et mise à jour\n{{frequence_revue}}\n\n> Cette fiche indexe une preuve existante ; elle ne remplace pas le document original.`:`# ${source.title}\n\n**Entreprise :** {{nom_entreprise}}  \n**Référence catalogue :** ${source.id}  \n**Catégorie :** ${source.category}  \n**Type :** ${source.type}  \n**Priorité :** ${source.priority}  \n**Version :** {{version}}  \n**Date :** {{date}}\n\n## 1. Objectif\n{{objet}}\n\n## 2. Périmètre\n{{perimetre}}\n\n## 3. Contexte et enjeux\n{{enjeux}}\n\n{{risques_impacts}}\n\n## 4. Contenu à formaliser\n{{contenu_principal}}\n\n## 5. Responsabilités\n- Direction : {{role_direction}}\n- Pilote : {{role_pilote}}\n- Responsable opérationnel : {{responsable}}\n\n## 6. Mise en œuvre\n{{deploiement}}\n\n- Première action : {{action}}\n- Échéance : {{echeance}}\n\n## 7. Suivi\n- KPI 1 : {{kpi_1}}\n- KPI 2 : {{kpi_2}}\n- KPI 3 : {{kpi_3}}\n\n## 8. Preuves associées\n- {{preuve_1}}\n- {{preuve_2}}\n- {{preuve_3}}\n\n## 9. Validation et révision\n- Validateur : {{validateur}}\n- Fréquence de revue : {{frequence_revue}}`;
+ return{id:source.id,title:source.title,category:source.category,type:source.type,priority:source.priority,frameworks:[],frequency:'Selon contexte',layout:layoutFor(source.type),sourcePath:`catalogue-source/${source.id}`,description:proof?'Créer une fiche de traçabilité pour indexer et contextualiser la preuve originale.':`Base structurée de type ${source.type.toLowerCase()} à adapter au contexte, aux enjeux et au pilotage de l’entreprise.`,markdown};
 }
 
-function markdownToHtml(markdown:string){
-  const lines=markdown.split('\n');
-  let html='';
-  let inList=false;
-  let inTable=false;
-  for(const raw of lines){
-    const line=raw.trimEnd();
-    if(line.startsWith('|')){
-      const cells=line.split('|').slice(1,-1).map(x=>x.trim());
-      if(cells.every(c=>/^[-:]+$/.test(c)))continue;
-      if(!inTable){html+='<table><tbody>';inTable=true;}
-      html+='<tr>'+cells.map(c=>'<td>'+renderInline(c)+'</td>').join('')+'</tr>';
-      continue;
-    }
-    if(inTable){html+='</tbody></table>';inTable=false;}
-    if(/^# /.test(line)){
-      if(inList){html+='</ul>';inList=false;}
-      html+=`<h1>${renderInline(line.slice(2))}</h1>`;
-    }else if(/^## /.test(line)){
-      if(inList){html+='</ul>';inList=false;}
-      html+=`<h2>${renderInline(line.slice(3))}</h2>`;
-    }else if(/^### /.test(line)){
-      if(inList){html+='</ul>';inList=false;}
-      html+=`<h3>${renderInline(line.slice(4))}</h3>`;
-    }else if(/^[-*] /.test(line)){
-      if(!inList){html+='<ul>';inList=true;}
-      html+=`<li>${renderInline(line.slice(2))}</li>`;
-    }else if(/^\d+\. /.test(line)){
-      if(!inList){html+='<ul>';inList=true;}
-      html+=`<li>${renderInline(line.replace(/^\d+\. /,''))}</li>`;
-    }else if(!line.trim()){
-      if(inList){html+='</ul>';inList=false;}
-    }else{
-      html+=`<p>${renderInline(line)}</p>`;
-    }
-  }
-  if(inList)html+='</ul>';
-  if(inTable)html+='</tbody></table>';
-  return html;
-}
-
-function suggestedValues(company:Company,templateTitle:string,frequency:string,priorities:string[],actions:string[]){
-  const today=new Date().toLocaleDateString('fr-FR');
-  const priorityText=priorities.length?priorities.join(', '):'les enjeux prioritaires issus du diagnostic RSE';
-  const firstAction=actions[0]||'Formaliser et lancer une première action sur la priorité principale';
-  return {
-    nom_entreprise:company.name||'',
-    version:'1.0',
-    date:today,
-    date_approbation:today,
-    date_validation:today,
-    perimetre:`Activités et équipes de ${company.name}${company.sector?` – secteur ${company.sector}`:''}`,
-    objet:`Formaliser ${templateTitle.toLowerCase()} afin de donner un cadre clair, pilotable et traçable à la démarche RSE de ${company.name}.`,
-    enjeux:priorityText,
-    risques_impacts:'Identifier et réduire les impacts négatifs prioritaires, consolider les pratiques existantes et sécuriser les attentes des clients, collaborateurs, fournisseurs et partenaires.',
-    parties_prenantes:'Direction, collaborateurs, clients, fournisseurs, partenaires et parties prenantes directement concernées par le périmètre.',
-    engagement_1:'Piloter la démarche RSE à partir de priorités explicites et reliées aux enjeux de l’entreprise.',
-    engagement_2:'Transformer les priorités en actions avec responsables, échéances, indicateurs et preuves.',
-    engagement_3:'Associer les parties prenantes utiles et intégrer leurs attentes dans les décisions.',
-    engagement_4:'Mesurer les progrès, documenter les résultats et réviser régulièrement les engagements.',
-    objectif:'Structurer et piloter la démarche RSE autour des priorités identifiées.',
-    kpi:'Taux d’actions RSE réalisées',
-    baseline:'À renseigner',
-    cible:'À définir lors de la validation',
-    echeance:'12 mois',
-    responsable:'Référent RSE / direction – à confirmer',
-    role_direction:'Valider les orientations, arbitrer les moyens, suivre les résultats et approuver les documents structurants.',
-    role_pilote:'Coordonner le plan d’action, consolider les indicateurs et preuves, préparer les revues et alerter en cas de blocage.',
-    role_managers:'Déployer les actions dans leur périmètre, suivre les échéances et remonter les données et preuves.',
-    role_autres:'Contribuer aux actions, appliquer les engagements définis et signaler les difficultés ou opportunités d’amélioration.',
-    deploiement:'La démarche est déployée par étapes : validation du cadre, affectation des responsabilités, lancement des actions prioritaires, collecte des preuves, suivi des indicateurs et revue périodique par la direction.',
-    kpi_1:'Avancement du plan d’action RSE',
-    kpi_2:'Couverture des priorités par des preuves disponibles',
-    kpi_3:'Nombre d’actions finalisées dans les délais',
-    preuve_1:'Plan d’action ou feuille de route validé(e)',
-    preuve_2:'Tableau de suivi des actions, indicateurs et échéances',
-    preuve_3:'Comptes rendus, justificatifs ou éléments démontrant la mise en œuvre effective',
-    frequence_revue:frequency||'au moins une fois par an',
-    contenu_principal:`Le document s’appuie sur le diagnostic RSE de ${company.name} et sur les priorités actuellement identifiées : ${priorityText}. Il précise le périmètre de travail, les responsabilités, les décisions à prendre, les modalités de suivi et les preuves à conserver pour démontrer la mise en œuvre.`,
-    point_1:`Valider les priorités de travail : ${priorityText}.`,
-    point_2:'Désigner les responsables, échéances, indicateurs et preuves attendues pour chaque action.',
-    point_3:'Organiser une revue périodique permettant d’arbitrer les écarts et de mettre à jour le document.',
-    validateur:'Direction – nom et fonction à confirmer',
-    periode:'12 prochains mois',
-    pilote:'Référent RSE / direction – à confirmer',
-    objectif_global:`Transformer les priorités RSE de ${company.name} en un plan d’action concret, suivi et documenté.`,
-    diagnostic_initial:`Le dernier diagnostic fait ressortir comme axes de travail prioritaires : ${priorityText}. Ces axes doivent être confirmés par la direction et traduits en objectifs, actions, indicateurs et preuves.`,
-    action:firstAction,
-    debut:today,
-    budget:'À définir',
-    preuve:'Justificatif de réalisation ou élément de suivi à associer',
-    risques_dependances:'Disponibilité des responsables, qualité des données, mobilisation des équipes et capacité à collecter des preuves fiables.',
-    frequence:'Trimestrielle',
-    instance:'Revue RSE de direction / comité de pilotage',
-    regle_escalade:'Tout retard majeur, absence de responsable ou risque significatif est présenté à la direction pour arbitrage.',
-    bilan:'À compléter lors de chaque revue avec les résultats obtenus, les écarts, les preuves disponibles et les décisions de mise à jour.'
-  };
-}
+function suggestedValues(company:Company,templateTitle:string,frequency:string,priorities:string[],actions:string[]){const today=new Date().toLocaleDateString('fr-FR');const priorityText=priorities.length?priorities.join(', '):'les enjeux prioritaires issus du diagnostic RSE';const firstAction=actions[0]||'Définir et lancer une première action adaptée au sujet';return{nom_entreprise:company.name||'',version:'1.0',date:today,date_approbation:today,date_validation:today,perimetre:`Activités et équipes de ${company.name}${company.sector?` – secteur ${company.sector}`:''}`,objet:`Formaliser ${templateTitle.toLowerCase()} afin de disposer d’un document clair, pilotable et traçable pour ${company.name}.`,enjeux:priorityText,risques_impacts:'Identifier les impacts, risques et opportunités réellement applicables au périmètre avant validation du document.',parties_prenantes:'Direction, collaborateurs, clients, fournisseurs, partenaires et parties prenantes concernées par le périmètre.',engagement_1:'Piloter la démarche à partir de priorités explicites.',engagement_2:'Transformer les priorités en actions, responsables, échéances et preuves.',engagement_3:'Associer les parties prenantes utiles.',engagement_4:'Mesurer les progrès et réviser le document lorsque nécessaire.',objectif:'Structurer et piloter le sujet en cohérence avec les priorités de l’entreprise.',kpi:'Taux d’actions réalisées',baseline:'À renseigner',cible:'À définir lors de la validation',echeance:'12 mois',responsable:'Référent / responsable à confirmer',role_direction:'Valider le cadre, arbitrer les moyens et suivre les résultats.',role_pilote:'Coordonner la mise en œuvre, consolider les informations et préparer les revues.',role_managers:'Déployer les actions dans leur périmètre et remonter les données utiles.',role_autres:'Contribuer aux actions et signaler les écarts ou opportunités d’amélioration.',deploiement:'Valider le périmètre, affecter les responsabilités, lancer les actions utiles, collecter les éléments de preuve et organiser une revue périodique.',kpi_1:'Avancement des actions liées au document',kpi_2:'Couverture par des preuves disponibles',kpi_3:'Respect des échéances définies',preuve_1:'Document, justificatif ou preuve originale à confirmer',preuve_2:'Élément de suivi ou compte rendu de mise en œuvre',preuve_3:'Indicateur ou résultat démontrant l’effectivité',frequence_revue:frequency||'Selon contexte',contenu_principal:`Adapter ce document à la situation réelle de ${company.name}. Le dernier diagnostic identifie comme priorités : ${priorityText}. Compléter uniquement les éléments applicables et conserver les sources ou preuves utilisées.`,point_1:`Confirmer les priorités concernées : ${priorityText}.`,point_2:'Désigner les responsables, échéances et preuves attendues.',point_3:'Organiser une revue permettant de mettre à jour le document.',validateur:'Direction – nom et fonction à confirmer',periode:'12 prochains mois',pilote:'Référent / direction – à confirmer',objectif_global:`Transformer les priorités de ${company.name} en actions concrètes, suivies et documentées.`,diagnostic_initial:`Le dernier diagnostic fait ressortir : ${priorityText}. Ces axes doivent être confirmés avant intégration au document.`,action:firstAction,debut:today,budget:'À définir',preuve:'Justificatif de réalisation à associer',risques_dependances:'Disponibilité des responsables, qualité des données, mobilisation des équipes et fiabilité des preuves.',frequence:'Trimestrielle',instance:'Revue de direction / comité de pilotage',regle_escalade:'Tout risque significatif, retard majeur ou point réglementaire est soumis à validation de la direction.',bilan:'À compléter lors de chaque revue avec les résultats, écarts, preuves et décisions de mise à jour.'}}
 
 export default function CatalogEditor(){
-  const[id,setId]=useState('');
-  const[companyId,setCompanyId]=useState('');
-  const[company,setCompany]=useState<Company|null>(null);
-  const[values,setValues]=useState<Record<string,string>>({});
-  const[suggestions,setSuggestions]=useState<Record<string,string>>({});
-  const[status,setStatus]=useState<'draft'|'completed'>('draft');
-  const[saving,setSaving]=useState(false);
-  const[msg,setMsg]=useState('');
-
-  useEffect(()=>{
-    const params=new URLSearchParams(window.location.search);
-    setId(params.get('id')||'');
-  },[]);
-
-  const template=useMemo(()=>msdgTemplateById(id),[id]);
-  const fields=useMemo(()=>template?extractTemplateFields(template.markdown):[],[template]);
-
-  useEffect(()=>{
-    if(!template)return;
-    (async()=>{
-      const{data:{user}}=await supabase.auth.getUser();
-      if(!user)return;
-      const{data:m}=await supabase.from('company_members').select('company_id,companies(name,sector,size_band,logo_url,brand_primary,brand_secondary)').eq('user_id',user.id).limit(1).maybeSingle();
-      const row:any=m;
-      if(!row)return;
-      const comp=row.companies as Company;
-      setCompanyId(row.company_id);
-      setCompany(comp);
-      let priorities:string[]=[];
-      let actions:string[]=[];
-      const{data:d}=await supabase.from('diagnostics').select('id').eq('company_id',row.company_id).order('created_at',{ascending:false}).limit(1).maybeSingle();
-      if(d){
-        const{data:p}=await supabase.from('priorities').select('id,pillar').eq('diagnostic_id',d.id).order('rank').limit(3);
-        priorities=(p||[]).map((x:any)=>x.pillar);
-        const pids=(p||[]).map((x:any)=>x.id);
-        if(pids.length){
-          const{data:a}=await supabase.from('actions').select('title').in('priority_id',pids).order('created_at').limit(3);
-          actions=(a||[]).map((x:any)=>x.title);
-        }
-      }
-      const proposed=suggestedValues(comp,template.title,template.frequency,priorities,actions);
-      setSuggestions(proposed);
-      const slug=`catalog-${template.id}`;
-      const{data:w}=await supabase.from('template_workspaces').select('values,status').eq('company_id',row.company_id).eq('resource_slug',slug).maybeSingle();
-      setValues(w?.values?{...proposed,...(w.values as Record<string,string>)}:proposed);
-      setStatus((w?.status as 'draft'|'completed'|undefined)||'draft');
-    })();
-  },[template]);
-
-  const rendered=useMemo(()=>{
-    if(!template)return'';
-    let text=template.markdown;
-    for(const field of fields){
-      text=text.replaceAll(`{{${field}}}`,values[field]?.trim()||`[${humanizeTemplateField(field)}]`);
-    }
-    return text;
-  },[template,fields,values]);
-
-  const completion=fields.length?Math.round(fields.filter(field=>values[field]?.trim()&&!values[field].startsWith('À renseigner')).length/fields.length*100):0;
-
-  function refill(){
-    setValues(current=>({...suggestions,...current}));
-    setMsg('Le document a été prérempli avec les informations connues de votre entreprise et de votre diagnostic. Vérifiez les éléments à confirmer avant finalisation.');
-  }
-
-  async function save(nextStatus:'draft'|'completed'){
-    if(!template||!companyId)return;
-    setSaving(true);
-    setMsg('');
-    const user=(await supabase.auth.getUser()).data.user;
-    const payload={
-      company_id:companyId,
-      resource_slug:`catalog-${template.id}`,
-      template_title:template.title,
-      values,
-      status:nextStatus,
-      created_by:user?.id,
-      updated_at:new Date().toISOString(),
-      completed_at:nextStatus==='completed'?new Date().toISOString():null
-    };
-    const{error}=await supabase.from('template_workspaces').upsert(payload,{onConflict:'company_id,resource_slug'});
-    if(error)setMsg(`Impossible d’enregistrer : ${error.message}`);
-    else{
-      setStatus(nextStatus);
-      setMsg(nextStatus==='completed'?'Document finalisé et enregistré dans Mes documents.':'Brouillon enregistré dans Mes documents.');
-    }
-    setSaving(false);
-  }
-
-  if(!template){
-    return <div className="modulePage"><div className="moduleHead"><h1>Modèle introuvable</h1></div><Link className="button" href="/library/catalog/">Retour au catalogue</Link></div>;
-  }
-
-  return <div className="modulePage">
-    <div className="moduleHead">
-      <span className="kicker">ÉDITEUR DOCUMENTAIRE RSE · {template.id}</span>
-      <h1>{template.title}</h1>
-      <p>{template.description}</p>
-    </div>
-
-    <div className="editorTop">
-      <Link href="/library/catalog/"><ArrowLeft/> Catalogue</Link>
-      <div><span>{completion}% complété</span><div><i style={{width:`${completion}%`}}/></div></div>
-      <span className={status==='completed'?'done':''}>{status==='completed'?'Finalisé':'Brouillon'}</span>
-    </div>
-
-    <div className="editorAssist">
-      <Sparkles/>
-      <div><b>Préremplissage intelligent</b><span>Les données connues de l’entreprise, les priorités du diagnostic et des contenus de cadrage sont utilisées sans inventer de résultats.</span></div>
-      <button onClick={refill}>Préremplir avec mon contexte</button>
-      <Link href="/library/catalog/new/"><Plus/> Créer un document libre</Link>
-    </div>
-
-    <div className="documentEditorLayout">
-      <aside className="documentFields">
-        <div className="documentFieldsHead"><FilePenLine/><div><b>Personnaliser le document</b><span>{fields.length} champs éditables · vérifiez les éléments marqués « à confirmer »</span></div></div>
-        {fields.map(field=><label key={field}>{humanizeTemplateField(field)}<textarea rows={values[field]?.length>120?5:values[field]?.length>70?3:2} value={values[field]||''} onChange={e=>setValues(current=>({...current,[field]:e.target.value}))} placeholder={`Renseignez ${humanizeTemplateField(field).toLowerCase()}`}/></label>)}
-        <div className="documentActions"><button className="secondaryButton" disabled={saving} onClick={()=>save('draft')}><Save/> Enregistrer le brouillon</button><button className="button" disabled={saving} onClick={()=>save('completed')}><CheckCircle2/> Finaliser</button></div>
-        {msg&&<p className={msg.startsWith('Impossible')?'auth-error':'auth-success'}>{msg}</p>}
-      </aside>
-
-      <section className="documentPreviewWrap">
-        <div className="documentPreviewLabel"><Eye/> Aperçu du document complet</div>
-        <article className="documentPreview" style={{'--brand-primary':company?.brand_primary||'#153b46','--brand-secondary':company?.brand_secondary||'#0797d5'} as React.CSSProperties}>
-          {company?.logo_url&&<img className="documentLogo" src={company.logo_url} alt={`Logo ${company.name}`}/>}<div className="documentBrandLine"/>
-          <div dangerouslySetInnerHTML={{__html:markdownToHtml(rendered)}}/>
-          <footer>{company?.name||'Entreprise'} · {template.title} · Version {values.version||'1.0'}</footer>
-        </article>
-      </section>
-    </div>
-
-    <style jsx>{`
-      .editorTop{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin:0 0 12px}.editorTop>a{display:flex;align-items:center;gap:5px;color:#39785b;text-decoration:none;font-weight:800;font-size:11px}.editorTop>a svg{width:14px}.editorTop>div{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:9px}.editorTop>div span{font-size:10px;color:#60777c}.editorTop>div>div{height:6px;border-radius:99px;background:#e6efec;overflow:hidden}.editorTop i{display:block;height:100%;background:#64aa86}.editorTop>span{font-size:9px;font-weight:900;padding:5px 8px;border-radius:99px;background:#f0f3f2;color:#6c7e82}.editorTop>span.done{background:#e6f5eb;color:#39785b}.editorAssist{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:12px 14px;margin-bottom:14px;border:1px solid #d6e8e1;border-radius:12px;background:#f5faf8}.editorAssist>svg{width:20px;color:#64aa86}.editorAssist b{display:block;font-size:11px}.editorAssist span{display:block;margin-top:2px;font-size:9px;color:#6e8589}.editorAssist button,.editorAssist a{min-height:34px;border:1px solid #bfd8cf;border-radius:8px;background:#fff;padding:7px 10px;color:#315f50;font:800 10px Inter,Arial,sans-serif;text-decoration:none;display:flex;align-items:center;gap:5px;cursor:pointer}.editorAssist a svg{width:13px}.documentEditorLayout{display:grid;grid-template-columns:410px minmax(0,1fr);gap:18px;align-items:start}.documentFields{display:grid;gap:12px;background:#fff;border:1px solid #dbe6e3;border-radius:14px;padding:18px;max-height:calc(100vh - 150px);overflow:auto;position:sticky;top:120px}.documentFieldsHead{display:flex;align-items:center;gap:9px;padding-bottom:11px;border-bottom:1px solid #e9efed}.documentFieldsHead>svg{width:20px;color:#64aa86}.documentFieldsHead b{display:block;font-size:14px}.documentFieldsHead span{display:block;font-size:9px;color:#7b8f93;margin-top:2px}.documentFields label{display:grid;gap:5px;font-size:10px;font-weight:850;color:#385963}.documentFields textarea{resize:vertical;border:1px solid #cbdcd7;border-radius:8px;padding:9px;font:12px/1.5 Inter,Arial,sans-serif}.documentActions{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding-top:4px}.documentActions :global(button){justify-content:center}.documentPreviewWrap{min-width:0}.documentPreviewLabel{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:10px;font-weight:850;color:#667d82}.documentPreviewLabel svg{width:15px}.documentPreview{width:min(794px,100%);min-height:1122px;margin:0 auto;background:#fff;border:1px solid #d8e3e0;border-radius:3px;box-shadow:0 14px 42px rgba(16,47,57,.09);padding:60px 64px 48px;position:relative;color:#263e45}.documentLogo{max-width:180px;max-height:72px;object-fit:contain;margin-bottom:18px}.documentBrandLine{height:5px;background:linear-gradient(90deg,var(--brand-primary) 0 68%,var(--brand-secondary) 68%);border-radius:99px;margin-bottom:34px}.documentPreview :global(h1){font:700 32px/1.15 Georgia,serif;color:var(--brand-primary);margin:0 0 22px}.documentPreview :global(h2){font:700 19px/1.25 Georgia,serif;color:var(--brand-primary);margin:27px 0 10px}.documentPreview :global(h3){font-size:14px;color:var(--brand-primary);margin:20px 0 8px}.documentPreview :global(p),.documentPreview :global(li){font-size:12px;line-height:1.65}.documentPreview :global(ul){padding-left:20px}.documentPreview :global(table){width:100%;border-collapse:collapse;margin:12px 0;font-size:9px}.documentPreview :global(td){border:1px solid #dfe8e5;padding:6px;vertical-align:top}.documentPreview :global(table tr:first-child td){background:#f1f6f4;font-weight:800;color:var(--brand-primary)}.documentPreview footer{position:absolute;left:64px;right:64px;bottom:28px;border-top:1px solid #e4ece9;padding-top:9px;font-size:8px;color:#839497}@media(max-width:1050px){.editorAssist{grid-template-columns:auto 1fr}.editorAssist button,.editorAssist a{justify-content:center}.documentEditorLayout{grid-template-columns:1fr}.documentFields{position:static;max-height:none}.documentPreview{min-height:900px}}@media(max-width:650px){.editorTop,.editorAssist{grid-template-columns:1fr}.documentActions{grid-template-columns:1fr}.documentPreview{padding:32px 26px}.documentPreview footer{left:26px;right:26px}}
-    `}</style>
-  </div>;
+ const[id,setId]=useState('');const[ready,setReady]=useState(false);const[companyId,setCompanyId]=useState('');const[company,setCompany]=useState<Company|null>(null);const[values,setValues]=useState<Record<string,string>>({});const[suggestions,setSuggestions]=useState<Record<string,string>>({});const[status,setStatus]=useState<'draft'|'completed'>('draft');const[saving,setSaving]=useState(false);const[msg,setMsg]=useState('');const[accessError,setAccessError]=useState('');
+ useEffect(()=>{const params=new URLSearchParams(window.location.search);setId(params.get('id')||'');setReady(true)},[]);
+ const source=useMemo(()=>sourceCatalogById(id),[id]);
+ const enriched=useMemo(()=>msdgTemplateById(id),[id]);
+ const template=useMemo(()=>enriched||(source?genericTemplate(source):undefined),[enriched,source]);
+ const fields=useMemo(()=>template?extractTemplateFields(template.markdown):[],[template]);
+ useEffect(()=>{if(!template)return;(async()=>{setAccessError('');const{data:{user}}=await supabase.auth.getUser();if(!user){setAccessError('Connectez-vous pour personnaliser ce document.');return}const{data:m}=await supabase.from('company_members').select('company_id,companies(name,sector,size_band,logo_url,brand_primary,brand_secondary)').eq('user_id',user.id).limit(1).maybeSingle();const row:any=m;if(!row){setAccessError('Aucune entreprise n’est associée à ce compte.');return}const comp=row.companies as Company;setCompanyId(row.company_id);setCompany(comp);let priorities:string[]=[];let actions:string[]=[];const{data:d}=await supabase.from('diagnostics').select('id').eq('company_id',row.company_id).order('created_at',{ascending:false}).limit(1).maybeSingle();if(d){const{data:p}=await supabase.from('priorities').select('id,pillar').eq('diagnostic_id',d.id).order('rank').limit(3);priorities=(p||[]).map((x:any)=>x.pillar);const pids=(p||[]).map((x:any)=>x.id);if(pids.length){const{data:a}=await supabase.from('actions').select('title').in('priority_id',pids).order('created_at').limit(3);actions=(a||[]).map((x:any)=>x.title)}}const proposed=suggestedValues(comp,template.title,template.frequency,priorities,actions);setSuggestions(proposed);const slug=`catalog-${template.id}`;const{data:w}=await supabase.from('template_workspaces').select('values,status').eq('company_id',row.company_id).eq('resource_slug',slug).maybeSingle();setValues(w?.values?{...proposed,...(w.values as Record<string,string>)}:proposed);setStatus((w?.status as 'draft'|'completed'|undefined)||'draft')})()},[template]);
+ const rendered=useMemo(()=>{if(!template)return'';let text=template.markdown;for(const field of fields)text=text.replaceAll(`{{${field}}}`,values[field]?.trim()||`[${humanizeTemplateField(field)}]`);return text},[template,fields,values]);
+ const completion=fields.length?Math.round(fields.filter(field=>values[field]?.trim()&&!values[field].startsWith('À renseigner')).length/fields.length*100):0;
+ function refill(){setValues(current=>({...suggestions,...current}));setMsg('Préremplissage appliqué. Vérifiez les informations proposées avant de finaliser.')}
+ async function save(nextStatus:'draft'|'completed'){if(!template||!companyId)return;setSaving(true);setMsg('');const user=(await supabase.auth.getUser()).data.user;const payload={company_id:companyId,resource_slug:`catalog-${template.id}`,template_title:template.title,values,status:nextStatus,created_by:user?.id,updated_at:new Date().toISOString(),completed_at:nextStatus==='completed'?new Date().toISOString():null};const{error}=await supabase.from('template_workspaces').upsert(payload,{onConflict:'company_id,resource_slug'});if(error)setMsg(`Impossible d’enregistrer : ${error.message}`);else{setStatus(nextStatus);setMsg(nextStatus==='completed'?'Document finalisé et enregistré dans Mes documents.':'Brouillon enregistré dans Mes documents.')}setSaving(false)}
+ if(!ready)return <div className="modulePage"><p>Ouverture du modèle…</p></div>;
+ if(!template)return <div className="modulePage"><div className="moduleHead"><span className="kicker">CATALOGUE EXPERT</span><h1>Modèle introuvable</h1><p>Cette référence n’existe pas dans le catalogue source actuel.</p></div><Link className="button" href="/library/catalog/">Retour au catalogue</Link></div>;
+ if(accessError)return <div className="modulePage"><span className="kicker">ÉDITEUR DOCUMENTAIRE</span><h1>{template.title}</h1><p className="actionLead">{accessError}</p><Link className="button" href="/connexion/">Se connecter →</Link></div>;
+ return <div className="modulePage">
+  <div className="moduleHead"><span className="kicker">ÉDITEUR DOCUMENTAIRE RSE · {template.id}</span><h1>{template.title}</h1><p>{template.description}</p></div>
+  {source&&<div className="sourceContext"><BookOpen/><div><b>{source.category}</b><span>{source.type} · {source.priority} · {source.model} · {source.refCount} référentiel{source.refCount>1?'s':''}</span></div>{enriched?<em>Trame enrichie</em>:<em>Base structurée</em>}</div>}
+  {source?.legalReview==='Oui'&&<div className="editorWarning"><ShieldAlert/><div><b>Revue juridique requise</b><span>Le catalogue source signale que ce document doit faire l’objet d’une revue juridique avant validation ou diffusion.</span></div></div>}
+  {source?.model==='FICHE DE PREUVE V3'&&<div className="editorWarning soft"><ShieldAlert/><div><b>Fiche d’indexation</b><span>Cette fiche sert à référencer et contextualiser une preuve ; elle ne remplace pas la pièce originale.</span></div></div>}
+  <div className="editorTop"><Link href="/library/catalog/"><ArrowLeft/> Catalogue</Link><div><span>{completion}% complété</span><div><i style={{width:`${completion}%`}}/></div></div><span className={status==='completed'?'done':''}>{status==='completed'?'Finalisé':'Brouillon'}</span></div>
+  <div className="editorAssist"><Sparkles/><div><b>Préremplissage avec le contexte de l’entreprise</b><span>Le profil, le diagnostic, les priorités et les premières actions alimentent les champs utiles sans inventer de résultats.</span></div><button type="button" onClick={refill}>Préremplir avec mon contexte</button><Link href="/library/catalog/new/"><Plus/> Document libre</Link></div>
+  <div className="documentEditorLayout"><aside className="documentFields"><div className="documentFieldsHead"><FilePenLine/><div><b>Personnaliser le document</b><span>{fields.length} champs à vérifier ou compléter</span></div></div>{fields.map(field=><label key={field}>{humanizeTemplateField(field)}<textarea rows={(values[field]?.length||0)>120?5:(values[field]?.length||0)>70?3:2} value={values[field]||''} onChange={e=>setValues(current=>({...current,[field]:e.target.value}))} placeholder={`Renseignez ${humanizeTemplateField(field).toLowerCase()}`}/></label>)}<div className="documentActions"><button className="secondaryButton" disabled={saving} onClick={()=>save('draft')}><Save/> Enregistrer le brouillon</button><button className="button" disabled={saving} onClick={()=>save('completed')}><CheckCircle2/> Finaliser</button></div>{msg&&<p className={msg.startsWith('Impossible')?'auth-error':'auth-success'}>{msg}</p>}</aside>
+   <section className="documentPreviewWrap"><div className="documentPreviewLabel"><Eye/> Aperçu du document</div><article className="documentPreview" style={{'--brand-primary':company?.brand_primary||'#153b46','--brand-secondary':company?.brand_secondary||'#0797d5'} as CSSProperties}>{company?.logo_url&&<img className="documentLogo" src={company.logo_url} alt={`Logo ${company.name}`}/>}<div className="documentBrandLine"/><div dangerouslySetInnerHTML={{__html:markdownToHtml(rendered)}}/><footer>{company?.name||'Entreprise'} · {template.title} · Version {values.version||'1.0'}</footer></article></section>
+  </div>
+  <style jsx>{`.sourceContext{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #dbe6e3;border-radius:12px;background:#f8fbfa;margin:14px 0}.sourceContext svg{width:20px;color:#64aa86}.sourceContext div{flex:1}.sourceContext b,.sourceContext span{display:block}.sourceContext b{font-size:11px}.sourceContext span{font-size:9px;color:#71868a;margin-top:2px}.sourceContext em{font-size:8px;font-style:normal;font-weight:900;padding:5px 7px;border-radius:999px;background:#e7f4ee;color:#39785b}.editorWarning{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin:10px 0;border:1px solid #e9c6a5;border-radius:11px;background:#fff7ef;color:#75491e}.editorWarning.soft{border-color:#cdded9;background:#f7faf9;color:#516f74}.editorWarning svg{width:19px;flex:none}.editorWarning b,.editorWarning span{display:block}.editorWarning b{font-size:10px}.editorWarning span{font-size:9px;line-height:1.45;margin-top:2px}.editorTop{display:grid;grid-template-columns:150px 1fr 90px;align-items:center;gap:15px;margin:15px 0}.editorTop>a{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:#456970;text-decoration:none}.editorTop>a svg{width:15px}.editorTop>div>span{font-size:9px;color:#6d8387}.editorTop>div>div{height:5px;background:#e7efed;border-radius:999px;overflow:hidden;margin-top:4px}.editorTop i{display:block;height:100%;background:#64aa86}.editorTop>span{justify-self:end;font-size:8px;font-weight:900;padding:5px 8px;border-radius:999px;background:#edf3f2;color:#60777b}.editorTop>span.done{background:#e4f5ed;color:#2e7656}.editorAssist{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:13px 15px;border-radius:12px;background:#113942;color:white;margin-bottom:14px}.editorAssist>svg{width:20px;color:#8bd2b0}.editorAssist b,.editorAssist span{display:block}.editorAssist b{font-size:10px}.editorAssist span{font-size:8px;opacity:.72;margin-top:2px}.editorAssist button,.editorAssist a{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:white;border-radius:8px;padding:8px 10px;font-size:8px;font-weight:900;text-decoration:none;cursor:pointer}.editorAssist a{display:flex;align-items:center;gap:5px}.editorAssist a svg{width:13px}.documentEditorLayout{display:grid;grid-template-columns:minmax(330px,.75fr) minmax(420px,1.25fr);gap:16px;align-items:start}.documentFields{padding:16px;border:1px solid #dbe6e3;border-radius:13px;background:#fff}.documentFieldsHead{display:flex;gap:9px;align-items:center;padding-bottom:12px;border-bottom:1px solid #e5ecea;margin-bottom:12px}.documentFieldsHead svg{width:19px;color:#64aa86}.documentFieldsHead b,.documentFieldsHead span{display:block}.documentFieldsHead b{font-size:11px}.documentFieldsHead span{font-size:8px;color:#71868a}.documentFields label{display:block;font-size:9px;font-weight:800;color:#49686e;margin:10px 0}.documentFields textarea{display:block;width:100%;box-sizing:border-box;margin-top:4px;border:1px solid #cddbd7;border-radius:8px;padding:9px 10px;resize:vertical;font:inherit;font-size:10px;line-height:1.45;color:#153b46}.documentActions{display:flex;gap:8px;margin-top:15px}.documentActions :global(button){flex:1;justify-content:center}.documentPreviewWrap{position:sticky;top:14px}.documentPreviewLabel{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:900;color:#627b80;margin:0 0 7px}.documentPreviewLabel svg{width:15px}.documentPreview{--brand-primary:#153b46;--brand-secondary:#0797d5;background:#fff;border:1px solid #d8e2df;border-radius:8px;padding:32px 38px;min-height:720px;box-shadow:0 9px 30px rgba(16,47,57,.07);color:#213e45}.documentLogo{max-width:145px;max-height:62px;object-fit:contain;margin-bottom:10px}.documentBrandLine{height:4px;background:linear-gradient(90deg,var(--brand-primary),var(--brand-secondary));margin:0 0 24px}.documentPreview :global(h1){font-size:25px;line-height:1.15;color:var(--brand-primary);margin:0 0 20px}.documentPreview :global(h2){font-size:15px;color:var(--brand-primary);margin:22px 0 9px;padding-bottom:5px;border-bottom:1px solid #e3e9e7}.documentPreview :global(h3){font-size:12px;margin:15px 0 7px}.documentPreview :global(p),.documentPreview :global(li){font-size:10px;line-height:1.6;color:#435f65}.documentPreview :global(ul){padding-left:18px}.documentPreview :global(table){width:100%;border-collapse:collapse;margin:12px 0}.documentPreview :global(td){border:1px solid #dce5e2;padding:6px;font-size:8px}.documentPreview footer{margin-top:30px;padding-top:10px;border-top:1px solid #dfe7e5;font-size:7px;color:#839397}@media(max-width:1000px){.documentEditorLayout{grid-template-columns:1fr}.documentPreviewWrap{position:static}.editorAssist{grid-template-columns:auto 1fr}.editorAssist button,.editorAssist a{grid-column:span 1}}@media(max-width:650px){.editorTop{grid-template-columns:1fr}.editorTop>span{justify-self:start}.editorAssist{grid-template-columns:1fr}.editorAssist>svg{display:none}.documentPreview{padding:24px 18px}.documentActions{flex-direction:column}}`}</style>
+ </div>
 }
