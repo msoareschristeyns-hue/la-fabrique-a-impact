@@ -13,12 +13,14 @@ export default function InscriptionPage() {
   const [message,setMessage]=useState('');
   const field=(key:string)=>(e:any)=>setForm({...form,[key]:e.target.value});
 
-  async function waitForMembership(userId:string){
-    for(let attempt=0;attempt<4;attempt++){
+  async function ensureMembership(userId:string){
+    for(let attempt=0;attempt<3;attempt++){
       const {data,error}=await supabase.from('company_members').select('company_id').eq('user_id',userId).limit(1).maybeSingle();
       if(error) throw error;
       if(data?.company_id) return true;
-      if(attempt<3) await new Promise(resolve=>setTimeout(resolve,600));
+      const {error:rpcError}=await supabase.rpc('ensure_my_company_membership');
+      if(rpcError&&attempt===2) throw rpcError;
+      if(attempt<2) await new Promise(resolve=>setTimeout(resolve,500));
     }
     return false;
   }
@@ -42,7 +44,7 @@ export default function InscriptionPage() {
         setMessage('Compte créé. Confirmez votre adresse depuis l’email reçu, puis connectez-vous pour finaliser votre espace entreprise.');
         return;
       }
-      const provisioned=await waitForMembership(data.user.id);
+      const provisioned=await ensureMembership(data.user.id);
       if(provisioned){router.push('/diagnostic/');return}
       setMessage('Votre compte est créé, mais l’espace entreprise est encore en cours de préparation. Connectez-vous dans quelques instants pour poursuivre.');
     }catch(err:any){
