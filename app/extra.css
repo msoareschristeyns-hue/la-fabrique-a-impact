@@ -168,6 +168,40 @@
 @media(min-width:761px){
   .templateWorkspace:has(.brandDocument){max-width:none}
   .templateWorkspace .brandDocument{outline:1px solid rgba(21,59,70,.04)}
+  .brandDocument .docBody{background:#f4f6f5;padding-top:10mm}
+  .brandDocument .docBody:before{background:#fff;margin:0 -14mm;padding:8mm 14mm 3mm;border-bottom:2px solid var(--doc-secondary)}
+  .brandDocument .docSection{
+    background:#fff;
+    margin-left:-14mm;
+    margin-right:-14mm;
+    padding-left:14mm;
+    padding-right:14mm;
+  }
+  .brandDocument .docSection:nth-of-type(4n+1):not(:first-of-type){
+    margin-top:18mm;
+    padding-top:16mm;
+    box-shadow:0 -18mm 0 #eef1f0,0 -18mm 0 1px #dde5e2;
+  }
+  .brandDocument .docSection:nth-of-type(4n+1):not(:first-of-type):before{
+    content:"PAGE SUIVANTE";
+    position:absolute;
+    top:-12mm;
+    right:14mm;
+    color:#91a19f;
+    font:800 7.5pt Inter,Arial,sans-serif;
+    letter-spacing:1px;
+  }
+  .completeRseDocument .docDecision,.completeRseDocument .docValidation{
+    margin-top:18mm;
+    padding-top:16mm;
+    box-shadow:0 -18mm 0 #eef1f0,0 -18mm 0 1px #dde5e2;
+  }
+  .completeRseDocument .docExecutive{
+    margin:18mm -14mm 0;
+    border-radius:0;
+    padding:16mm 14mm;
+    box-shadow:0 -18mm 0 #eef1f0,0 -18mm 0 1px #dde5e2;
+  }
 }
 
 @media(max-width:760px){
@@ -210,14 +244,24 @@
     bottom:14mm;
   }
   .docAccent{display:none}
-  .docBody{padding:0!important;border-top:0!important}
+  .docBody{padding:0!important;border-top:0!important;background:#fff!important}
   .docBody:before{
-    margin:0 0 8mm;
-    padding:0 0 3mm;
+    margin:0 0 8mm!important;
+    padding:0 0 3mm!important;
+    background:#fff!important;
   }
-  .docSection{padding:7mm 0 8mm;break-inside:auto}
+  .docSection,.brandDocument .docSection{
+    margin:0!important;
+    padding:7mm 0 8mm!important;
+    box-shadow:none!important;
+    background:#fff!important;
+    break-inside:auto;
+  }
+  .docSection:before{display:none!important}
   .docSection h2{break-after:avoid;page-break-after:avoid}
   .docField,.docPriorityGrid article,.docRoadmap article,.docExecutive,.docValidationGrid>div,.docTable tr{break-inside:avoid;page-break-inside:avoid}
+  .completeRseDocument .docDecision,.completeRseDocument .docValidation{margin:0!important;padding-top:7mm!important;box-shadow:none!important}
+  .completeRseDocument .docExecutive{margin:8mm 0 0!important;padding:8mm!important;border-radius:4mm!important;box-shadow:none!important}
   .brandDocument>footer{
     position:fixed;
     left:14mm;right:14mm;bottom:4mm;
