@@ -13,11 +13,22 @@ export default function ConnexionPage() {
   const [loading, setLoading] = useState(false);
 
   async function submit(e: FormEvent) {
-    e.preventDefault(); setLoading(true); setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    e.preventDefault();
+    if (loading) return;
+    setLoading(true); setError('');
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email:email.trim(), password });
+    if (signInError || !data.user) {
+      setLoading(false);
+      setError('Email ou mot de passe incorrect, ou compte non confirmé.');
+      return;
+    }
+    const { data:membership, error:membershipError } = await supabase.from('company_members').select('company_id').eq('user_id',data.user.id).limit(1).maybeSingle();
     setLoading(false);
-    if (error) { setError('Email ou mot de passe incorrect.'); return; }
-    router.push('/dashboard/');
+    if (membershipError) {
+      setError('Connexion réussie, mais votre espace entreprise ne peut pas être chargé pour le moment.');
+      return;
+    }
+    router.push(membership ? '/dashboard/' : '/diagnostic/');
   }
 
   return <main className="auth-page"><section className="auth-card">
