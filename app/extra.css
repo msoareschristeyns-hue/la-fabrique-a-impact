@@ -6,14 +6,17 @@
   background:#fff;
   color:#183740;
   border:1px solid #dce7e5;
-  border-radius:18px;
+  border-radius:6px;
   overflow:hidden;
-  box-shadow:0 18px 60px rgba(21,59,70,.08);
+  box-shadow:0 18px 60px rgba(21,59,70,.12);
+  width:min(210mm,100%);
+  margin:24px auto 56px;
 }
 
+/* Screen preview follows the same A4 geometry used by print/PDF. */
 .brandDocumentHeader{
-  min-height:820px;
-  padding:72px 64px 56px;
+  min-height:297mm;
+  padding:30mm 22mm 24mm;
   display:grid;
   grid-template-columns:minmax(0,1.5fr) minmax(240px,.5fr);
   gap:48px;
@@ -29,6 +32,15 @@
   top:0;left:0;right:0;
   height:10px;
   background:linear-gradient(90deg,var(--doc-primary),var(--doc-secondary));
+}
+.brandDocumentHeader:after{
+  content:"La Fabrique à Impact";
+  position:absolute;
+  left:22mm;
+  bottom:14mm;
+  font:700 9pt Inter,Arial,sans-serif;
+  color:var(--doc-primary);
+  opacity:.65;
 }
 .brandDocumentHeader>div:first-child{align-self:center;max-width:720px}
 .brandDocumentHeader small{
@@ -69,14 +81,29 @@
 }
 .docIdentity b{font-size:18px;color:var(--doc-primary);margin-bottom:4px}
 .docAccent{height:8px;background:linear-gradient(90deg,var(--doc-primary),var(--doc-secondary))}
-.docBody{padding:54px 64px 72px;background:#fff}
+.docBody{
+  position:relative;
+  padding:16mm 14mm 20mm;
+  background:#fff;
+  border-top:14px solid #eef3f2;
+}
+.docBody:before{
+  content:"DOCUMENT RSE";
+  display:block;
+  margin:0 0 8mm;
+  padding:0 0 3mm;
+  border-bottom:2px solid var(--doc-secondary);
+  color:var(--doc-primary);
+  font:800 8pt Inter,Arial,sans-serif;
+  letter-spacing:1.2px;
+}
 .docSection{
   position:relative;
   padding:30px 0 34px;
   border-bottom:1px solid #e7efed;
   break-inside:avoid;
 }
-.docSection:first-child{padding-top:0}
+.docSection:first-of-type{padding-top:0}
 .docSection>small,.docSectionNo{
   display:inline-flex;
   min-width:34px;
@@ -127,7 +154,7 @@
 .docExecutive h2,.docExecutive p,.docExecutive small,.docExecutive blockquote{color:#fff}
 .brandDocument>footer{
   min-height:62px;
-  padding:18px 32px;
+  padding:18px 14mm;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -138,13 +165,20 @@
   font-size:10px;
 }
 
+@media(min-width:761px){
+  .templateWorkspace:has(.brandDocument){max-width:none}
+  .templateWorkspace .brandDocument{outline:1px solid rgba(21,59,70,.04)}
+}
+
 @media(max-width:760px){
+  .brandDocument{width:100%;margin:16px auto 36px;border-radius:10px}
   .brandDocumentHeader{min-height:620px;padding:42px 26px;grid-template-columns:1fr;gap:24px}
+  .brandDocumentHeader:after{left:26px;bottom:20px}
   .companyDocLogo{margin-bottom:28px}
   .docIdentity{padding-left:16px}
   .docBody{padding:36px 26px 50px}
   .docPriorityGrid,.docRoadmap,.docExecutiveGrid,.docValidationGrid{grid-template-columns:1fr}
-  .brandDocument>footer{align-items:flex-start;flex-direction:column}
+  .brandDocument>footer{padding:18px 26px;align-items:flex-start;flex-direction:column}
 }
 
 @page{size:A4;margin:16mm 14mm 17mm}
@@ -157,6 +191,7 @@
     border:0!important;
     border-radius:0!important;
     box-shadow:none!important;
+    outline:0!important;
     overflow:visible!important;
     width:auto!important;
     margin:0!important;
@@ -171,25 +206,14 @@
     -webkit-print-color-adjust:exact;
   }
   .brandDocumentHeader:after{
-    content:"La Fabrique à Impact";
-    position:absolute;
     left:22mm;
     bottom:14mm;
-    font:700 9pt Inter,Arial,sans-serif;
-    color:var(--doc-primary);
-    opacity:.65;
   }
   .docAccent{display:none}
-  .docBody{padding:0!important}
+  .docBody{padding:0!important;border-top:0!important}
   .docBody:before{
-    content:"DOCUMENT RSE";
-    display:block;
     margin:0 0 8mm;
     padding:0 0 3mm;
-    border-bottom:2px solid var(--doc-secondary);
-    color:var(--doc-primary);
-    font:800 8pt Inter,Arial,sans-serif;
-    letter-spacing:1.2px;
   }
   .docSection{padding:7mm 0 8mm;break-inside:auto}
   .docSection h2{break-after:avoid;page-break-after:avoid}
