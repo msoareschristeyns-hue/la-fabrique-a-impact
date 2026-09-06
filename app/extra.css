@@ -11,6 +11,7 @@
   box-shadow:0 18px 60px rgba(21,59,70,.12);
   width:min(210mm,100%);
   margin:24px auto 56px;
+  counter-reset:previewpage 1;
 }
 
 /* Screen preview follows the same A4 geometry used by print/PDF. */
@@ -178,16 +179,20 @@
     padding-right:14mm;
   }
   .brandDocument .docSection:nth-of-type(4n+1):not(:first-of-type){
+    counter-increment:previewpage;
     margin-top:18mm;
     padding-top:16mm;
     box-shadow:0 -18mm 0 #eef1f0,0 -18mm 0 1px #dde5e2;
   }
   .brandDocument .docSection:nth-of-type(4n+1):not(:first-of-type):before{
-    content:"PAGE SUIVANTE";
+    content:"PAGE " counter(previewpage) " · DOCUMENT RSE";
     position:absolute;
     top:-12mm;
+    left:14mm;
     right:14mm;
-    color:#91a19f;
+    padding-bottom:3mm;
+    border-bottom:1px solid #dfe7e4;
+    color:#879895;
     font:800 7.5pt Inter,Arial,sans-serif;
     letter-spacing:1px;
   }
@@ -201,6 +206,14 @@
     border-radius:0;
     padding:16mm 14mm;
     box-shadow:0 -18mm 0 #eef1f0,0 -18mm 0 1px #dde5e2;
+  }
+  .brandDocument>footer:after{
+    content:"Aperçu A4";
+    margin-left:auto;
+    padding-left:10px;
+    color:var(--doc-secondary);
+    font-weight:800;
+    letter-spacing:.5px;
   }
 }
 
@@ -272,6 +285,7 @@
     font-size:7.5pt;
     z-index:10;
   }
+  .brandDocument>footer:after{display:none!important}
   .brandDocument>footer span:last-child{color:var(--doc-secondary);font-weight:800}
   *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
