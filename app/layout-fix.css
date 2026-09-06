@@ -32,8 +32,42 @@
 }
 
 @media(max-width:760px){
-  .appCanvas{width:100%}
+  :root{--app-gutter:16px}
+  body{overflow-x:hidden}
+  .appCanvas{width:100%;max-width:none}
   .appCanvas>header,.modulePage>.moduleHead,.modulePage>.journeyHero{position:relative!important;top:auto;padding:0 0 16px!important;background:transparent!important;backdrop-filter:none;box-shadow:none!important}
   .appCanvas>header{align-items:flex-start!important;flex-direction:column!important}
   .appCanvas>header .globalScore{width:100%!important;min-width:0!important}
+  .modulePage>.moduleHead h1,.modulePage>.journeyHero h1,.appCanvas>header h1{font-size:clamp(29px,9vw,36px)!important}
+  .metrics,.actionProgress,.progressKpis,.priorityGrid,.dashPriorities,.proofGrid,.settingsGrid,.workspaceKpis,.workspaceGrid,.learningGrid,.capsuleGrid{grid-template-columns:1fr!important}
+  .pillarLayout,.two,.proofFields,.copilotHead,.adminLayout{grid-template-columns:1fr!important}
+  .pillarRow{grid-template-columns:1fr 46px!important}
+  .pillarRow>div:first-child{grid-column:1/-1}
+  .choices,.diagnosticQuestion .choices{grid-template-columns:1fr!important}
+  .diagnosticFooter,.proofHeader,.proofSectionTitle,.sectionTitle,.nextStep,.onboardingCard,.reportBanner,.copilotBar{align-items:stretch!important;flex-direction:column!important}
+  .diagnosticFooter{gap:10px}
+  .diagnosticFooter .button,.proofHeader .button,.nextStep .button,.onboardingCard .button{width:100%}
+  .reportBanner>a,.copilotCta{margin-left:0!important;width:100%;text-align:center}
+  .actionList article{grid-template-columns:36px 1fr!important;align-items:start!important}
+  .actionList article>.proofButton{grid-column:1/-1;width:100%;text-align:center}
+  .roadmapPhase>header{align-items:flex-start!important;flex-wrap:wrap}
+  .roadmapPhase>header small{margin-left:56px!important;width:100%}
+  .emptyJourney{grid-template-columns:1fr!important}
+  .preview,.diagCard,.proofForm,.pillarResults,.priorityFocus article,.nextStep,.progressSection,.settingsCard,.onboardingCard{padding:20px!important;border-radius:14px!important}
+  .messages{min-height:300px!important;padding:18px!important}
+  .quickPrompts,.contextStrip{padding:12px!important}
+  .chatInput{grid-template-columns:1fr 44px!important;padding:12px!important}
+  .proofSectionTitle>span{align-self:flex-start}
+  .uploadField>span{flex-direction:column!important;gap:4px!important}
+  .reportToolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:14px!important}
+  .reportToolbar .button{width:100%}
+  .rseReport{overflow:hidden}
+  .reportIdentity{grid-template-columns:1fr 1fr!important}
+  .reportPriorities{grid-template-columns:1fr!important}
+}
+
+@media(max-width:440px){
+  .reportIdentity{grid-template-columns:1fr!important}
+  .button,.btn{width:100%}
+  .mobileBar>a img{width:150px!important}
 }
