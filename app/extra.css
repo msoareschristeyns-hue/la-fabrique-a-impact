@@ -1,0 +1,209 @@
+/* Global branded document system: cover + consistent interior pages */
+.brandDocument{
+  --doc-primary:#153b46;
+  --doc-secondary:#0797d5;
+  position:relative;
+  background:#fff;
+  color:#183740;
+  border:1px solid #dce7e5;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 18px 60px rgba(21,59,70,.08);
+}
+
+.brandDocumentHeader{
+  min-height:820px;
+  padding:72px 64px 56px;
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(240px,.5fr);
+  gap:48px;
+  align-items:end;
+  position:relative;
+  background:
+    radial-gradient(circle at 88% 13%,color-mix(in srgb,var(--doc-secondary) 14%,transparent) 0 120px,transparent 121px),
+    linear-gradient(145deg,#fff 0 63%,color-mix(in srgb,var(--doc-primary) 7%,#fff) 63% 100%);
+}
+.brandDocumentHeader:before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:10px;
+  background:linear-gradient(90deg,var(--doc-primary),var(--doc-secondary));
+}
+.brandDocumentHeader>div:first-child{align-self:center;max-width:720px}
+.brandDocumentHeader small{
+  display:inline-block;
+  font:800 11px/1.3 Inter,Arial,sans-serif;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--doc-secondary);
+  margin-bottom:24px;
+}
+.brandDocumentHeader h1{
+  margin:0 0 18px;
+  color:var(--doc-primary);
+  font:700 clamp(42px,5vw,68px)/1.02 Georgia,serif;
+  letter-spacing:-1.5px;
+}
+.brandDocumentHeader h2,.brandDocumentHeader p{
+  max-width:650px;
+  margin:0;
+  color:#587078;
+  font:400 18px/1.55 Inter,Arial,sans-serif;
+}
+.companyDocLogo{
+  display:block;
+  max-width:220px;
+  max-height:100px;
+  object-fit:contain;
+  margin:0 0 46px;
+}
+.docIdentity{
+  align-self:end;
+  padding:24px 0 6px 24px;
+  border-left:3px solid var(--doc-secondary);
+  display:grid;
+  gap:7px;
+  color:#63777d;
+  font-size:12px;
+}
+.docIdentity b{font-size:18px;color:var(--doc-primary);margin-bottom:4px}
+.docAccent{height:8px;background:linear-gradient(90deg,var(--doc-primary),var(--doc-secondary))}
+.docBody{padding:54px 64px 72px;background:#fff}
+.docSection{
+  position:relative;
+  padding:30px 0 34px;
+  border-bottom:1px solid #e7efed;
+  break-inside:avoid;
+}
+.docSection:first-child{padding-top:0}
+.docSection>small,.docSectionNo{
+  display:inline-flex;
+  min-width:34px;
+  color:var(--doc-secondary);
+  font:900 10px/1 Inter,Arial,sans-serif;
+  letter-spacing:1px;
+}
+.docSection h2{
+  margin:5px 0 18px;
+  color:var(--doc-primary);
+  font:700 27px/1.15 Georgia,serif;
+}
+.docSection h3{color:var(--doc-primary);margin:18px 0 7px;font-size:14px}
+.docSection p,.docSection li,.docSection dd{line-height:1.62;color:#445e65}
+.docField{break-inside:avoid}
+.docPriorityGrid,.docRoadmap,.docExecutiveGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.docPriorityGrid article,.docRoadmap article{
+  border:1px solid #dce7e5;
+  border-top:4px solid var(--doc-secondary);
+  border-radius:12px;
+  padding:18px;
+  break-inside:avoid;
+}
+.docPriorityGrid article>span,.docRoadmap article>span,.docExecutive>span{
+  font-size:9px;font-weight:900;letter-spacing:1px;color:var(--doc-secondary)
+}
+.docTable{width:100%;border-collapse:collapse;font-size:12px}
+.docTable td{padding:10px;border:1px solid #dce7e5;vertical-align:top}
+.docTable tr:first-child td{background:color-mix(in srgb,var(--doc-primary) 6%,#fff);font-weight:800;color:var(--doc-primary)}
+.docDecision blockquote,.docExecutive blockquote{
+  margin:22px 0 0;
+  padding:18px 20px;
+  border-left:4px solid var(--doc-secondary);
+  background:color-mix(in srgb,var(--doc-secondary) 6%,#fff);
+  color:var(--doc-primary);
+  font-weight:700;
+}
+.docValidationGrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.docValidationGrid>div{padding:14px;border:1px solid #dce7e5;border-radius:10px;display:grid;gap:5px}
+.docExecutive{
+  margin-top:42px;
+  padding:30px;
+  border-radius:14px;
+  background:var(--doc-primary);
+  color:#fff;
+  break-inside:avoid;
+}
+.docExecutive h2,.docExecutive p,.docExecutive small,.docExecutive blockquote{color:#fff}
+.brandDocument>footer{
+  min-height:62px;
+  padding:18px 32px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border-top:1px solid #dce7e5;
+  background:#fff;
+  color:#6f8287;
+  font-size:10px;
+}
+
+@media(max-width:760px){
+  .brandDocumentHeader{min-height:620px;padding:42px 26px;grid-template-columns:1fr;gap:24px}
+  .companyDocLogo{margin-bottom:28px}
+  .docIdentity{padding-left:16px}
+  .docBody{padding:36px 26px 50px}
+  .docPriorityGrid,.docRoadmap,.docExecutiveGrid,.docValidationGrid{grid-template-columns:1fr}
+  .brandDocument>footer{align-items:flex-start;flex-direction:column}
+}
+
+@page{size:A4;margin:16mm 14mm 17mm}
+@media print{
+  body{background:#fff!important}
+  .dash aside,.templateUi,.templateHeaderActions,.workspaceProgress,.mobileTopbar,.mobileNavToggle{display:none!important}
+  .dash{display:block!important;background:#fff!important}
+  .dashMain,.modulePage,.templateWorkspace{padding:0!important;margin:0!important;width:auto!important;max-width:none!important}
+  .brandDocument{
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+    width:auto!important;
+    margin:0!important;
+  }
+  .brandDocumentHeader{
+    min-height:260mm;
+    margin:-16mm -14mm -17mm;
+    padding:30mm 22mm 24mm;
+    break-after:page;
+    page-break-after:always;
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+  }
+  .brandDocumentHeader:after{
+    content:"La Fabrique à Impact";
+    position:absolute;
+    left:22mm;
+    bottom:14mm;
+    font:700 9pt Inter,Arial,sans-serif;
+    color:var(--doc-primary);
+    opacity:.65;
+  }
+  .docAccent{display:none}
+  .docBody{padding:0!important}
+  .docBody:before{
+    content:"DOCUMENT RSE";
+    display:block;
+    margin:0 0 8mm;
+    padding:0 0 3mm;
+    border-bottom:2px solid var(--doc-secondary);
+    color:var(--doc-primary);
+    font:800 8pt Inter,Arial,sans-serif;
+    letter-spacing:1.2px;
+  }
+  .docSection{padding:7mm 0 8mm;break-inside:auto}
+  .docSection h2{break-after:avoid;page-break-after:avoid}
+  .docField,.docPriorityGrid article,.docRoadmap article,.docExecutive,.docValidationGrid>div,.docTable tr{break-inside:avoid;page-break-inside:avoid}
+  .brandDocument>footer{
+    position:fixed;
+    left:14mm;right:14mm;bottom:4mm;
+    min-height:0;
+    padding:3mm 0 0;
+    background:#fff;
+    border-top:1px solid #dce7e5;
+    font-size:7.5pt;
+    z-index:10;
+  }
+  .brandDocument>footer span:last-child{color:var(--doc-secondary);font-weight:800}
+  *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
