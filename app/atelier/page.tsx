@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import {ArrowRight,Brainstorm,ClipboardCheck,FileText,Lightbulb,Target} from 'lucide-react';
+import {ArrowRight,Hammer,ClipboardCheck,FileText,Lightbulb,Target} from 'lucide-react';
 
 const workshops=[
   {title:'Clarifier un enjeu',desc:'Cadrez un sujet RSE, identifiez les parties prenantes et formulez le problème à traiter.',icon:Target,href:'/priorities/'},
@@ -18,7 +18,7 @@ export default function AtelierPage(){
           <h1>Passer de la réflexion à l’action.</h1>
           <p>L’Atelier vous aide à travailler concrètement sur vos enjeux prioritaires, faire émerger des solutions et transformer les échanges en actions et livrables.</p>
         </div>
-        <div className="atelierHeroIcon"><Brainstorm/></div>
+        <div className="atelierHeroIcon"><Hammer/></div>
       </div>
     </section>
 
