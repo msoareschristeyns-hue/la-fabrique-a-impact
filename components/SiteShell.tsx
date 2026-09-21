@@ -3,7 +3,7 @@ import {ReactNode} from 'react';
 import {usePathname} from 'next/navigation';
 import AppShell from './AppShell';
 
-const publicRoutes=['/','/connexion','/inscription'];
+const publicRoutes=['/','/connexion','/inscription','/tarifs'];
 
 export default function SiteShell({children}:{children:ReactNode}){
   const pathname=usePathname();
