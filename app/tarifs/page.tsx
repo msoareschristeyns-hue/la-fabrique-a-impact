@@ -59,7 +59,7 @@ export default function Tarifs(){
           <Link href="/#solution">La plateforme</Link>
           <Link className={styles.active} href="/tarifs/">Tarifs</Link>
           <Link href="/connexion/">Connexion</Link>
-          <Link className={styles.ctaMini} href="/diagnostic/">Évaluer ma maturité RSE</Link>
+          <Link className={styles.ctaMini} href="/evaluation-rse/">Évaluer ma maturité RSE</Link>
         </div>
       </nav>
     </header>
@@ -85,7 +85,7 @@ export default function Tarifs(){
         </div>
         <ul>{discovery.map(([label,ok])=><li key={String(label)}>{ok?<Check/>:<X className={styles.off}/>}<span>{label}</span></li>)}</ul>
         <Link className={styles.secondaryCta} href="/inscription/">Créer mon espace</Link>
-        <Link className={styles.inlineLink} href="/diagnostic/">Essayer le diagnostic sans inscription</Link>
+        <Link className={styles.inlineLink} href="/evaluation-rse/">Essayer le diagnostic sans inscription</Link>
       </article>
 
       <article className={styles.card+' '+styles.premium}>
