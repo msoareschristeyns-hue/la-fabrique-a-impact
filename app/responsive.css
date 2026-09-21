@@ -113,9 +113,12 @@ input,select,textarea{width:100%;min-width:0}
 .publicNavInner{width:min(1180px,calc(100% - 32px));height:78px;margin:auto;display:grid;grid-template-columns:210px 1fr auto;align-items:center;gap:20px}
 .publicBrand img{width:195px;height:auto;display:block}
 .publicDesktopNav{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0}
-.publicDesktopNav a{display:flex;align-items:center;justify-content:center;padding:10px 11px;border-radius:9px;text-decoration:none;color:#365c65;white-space:nowrap;font-size:12px;font-weight:700;line-height:1}
-.publicDesktopNav a:hover{background:#f0f7f4;color:#153b46}
-.publicDesktopNav a.active{background:#eaf5f0;color:#153b46}
+.publicDesktopNav a{position:relative;display:flex;align-items:center;justify-content:center;padding:10px 9px 12px;border-radius:0;text-decoration:none;color:#365c65;white-space:nowrap;font-size:12px;font-weight:700;line-height:1;background:transparent}
+.publicDesktopNav a:after{content:"";position:absolute;left:18%;right:18%;bottom:4px;height:2px;border-radius:999px;background:transparent;transition:background .18s ease,left .18s ease,right .18s ease}
+.publicDesktopNav a:hover{color:#153b46;background:transparent}
+.publicDesktopNav a:hover:after{left:10%;right:10%;background:#c9dfd6}
+.publicDesktopNav a.active{color:#153b46;background:transparent}
+.publicDesktopNav a.active:after{left:10%;right:10%;background:linear-gradient(90deg,#64aa86,#0797d5)}
 .publicCta{display:flex;align-items:center;gap:7px;padding:11px 13px;border-radius:9px;background:#0797d5;color:#fff;text-decoration:none;font-size:11px;font-weight:900;white-space:nowrap}
 .publicCta svg{width:14px}
 .publicMenuButton,.publicMobileNav{display:none}
