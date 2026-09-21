@@ -50,20 +50,6 @@ export default function Tarifs(){
   const[annual,setAnnual]=useState(false);
   const monthly=annual?80:100;
   return <main className={styles.page}>
-    <header className={styles.topbar}>
-      <nav className={styles.nav}>
-        <Link href="/" className={styles.brand}><img src="/logo-la-fabrique-impact.svg" alt="La Fabrique à Impact"/></Link>
-        <div className={styles.navLinks}>
-          <Link href="/#apropos">À propos</Link>
-          <Link href="/#methode">La méthode</Link>
-          <Link href="/#solution">La plateforme</Link>
-          <Link className={styles.active} href="/tarifs/">Tarifs</Link>
-          <Link href="/connexion/">Connexion</Link>
-          <Link className={styles.ctaMini} href="/evaluation-rse/">Évaluer ma maturité RSE</Link>
-        </div>
-      </nav>
-    </header>
-
     <section className={styles.hero}>
       <span>LA RSE QUI RENFORCE LA PERFORMANCE DE VOTRE ENTREPRISE</span>
       <h1>Choisissez votre offre</h1>
