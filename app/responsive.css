@@ -185,3 +185,35 @@ input,select,textarea{width:100%;min-width:0}
     background:#f8fbfa;
   }
 }
+
+/* Shared public section marker — same visual language everywhere */
+.publicEyebrow{
+ display:inline-flex!important;
+ width:max-content!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:7px!important;
+ margin:0 0 16px!important;
+ padding:8px 13px!important;
+ border:1px solid #d6e9e1!important;
+ border-radius:999px!important;
+ background:#eef7f3!important;
+ color:#237456!important;
+ font-family:var(--font-ui)!important;
+ font-size:10px!important;
+ font-weight:800!important;
+ line-height:1!important;
+ letter-spacing:.65px!important;
+ text-transform:uppercase!important;
+}
+.publicEyebrow:before{
+ content:"✣";
+ color:#399171;
+ font-size:13px;
+ line-height:1;
+}
+.intro>.publicEyebrow,.hero>.publicEyebrow{margin-left:auto!important;margin-right:auto!important}
+.auth-card>.publicEyebrow{margin-left:auto!important;margin-right:auto!important}
+@media(max-width:520px){
+ .publicEyebrow{padding:7px 11px!important;font-size:9px!important;letter-spacing:.5px!important}
+}
