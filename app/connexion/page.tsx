@@ -43,7 +43,7 @@ export default function ConnexionPage() {
 
   return <main className="auth-page"><section className="auth-card">
     <Link href="/" className="auth-brand">La Fabrique à Impact</Link>
-    <p className="eyebrow">Votre espace RSE</p><h1>Se connecter</h1>
+    <p className="publicEyebrow">VOTRE ESPACE RSE</p><h1>Se connecter</h1>
     <p>Retrouvez vos priorités, vos actions et vos preuves.</p>
     <form onSubmit={submit} className="auth-form">
       <label>Email<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" /></label>
