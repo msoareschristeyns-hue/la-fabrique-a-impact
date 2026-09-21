@@ -15,7 +15,7 @@
 .cycleCallout{margin:36px auto 0;max-width:1080px;border-radius:18px;background:#102f39;color:#fff;padding:25px 30px;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .cycleCallout small{font-size:9px;letter-spacing:1px;font-weight:900;color:#72c79a}.cycleCallout h3{font:29px Georgia,serif;margin:7px 0}.cycleCallout p{margin:0;color:#bad0d1;font-size:12px}.cycleCallout a{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:12px;font-weight:900;white-space:nowrap}.cycleCallout a svg{width:16px;color:#72c79a}
 @media(max-width:900px){.compareGrid,.valueGrid{grid-template-columns:1fr 1fr}.valueGrid article:nth-child(2){border-right:0}.valueGrid article{border-bottom:1px solid #dce7e5}.cycleCallout{align-items:flex-start;flex-direction:column}}
-@media(max-width:650px){.aboutSection{padding:64px 0 42px;scroll-margin-top:78px.aboutHead h2{font-size:31px}.compareGrid,.valueGrid{grid-template-columns:1fr}.valueGrid article{border-right:0}.compareGrid article{padding:21px}.cycleCallout{padding:22px}.cycleCallout h3{font-size:25px}}
+@media(max-width:650px){.aboutSection{padding:64px 0 42px;scroll-margin-top:78px}.aboutHead h2{font-size:31px}.compareGrid,.valueGrid{grid-template-columns:1fr}.valueGrid article{border-right:0}.compareGrid article{padding:21px}.cycleCallout{padding:22px}.cycleCallout h3{font-size:25px}}
 
 /* Full responsive pass — public homepage */
 @media(max-width:1180px){
