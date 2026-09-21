@@ -37,3 +37,8 @@ npm run dev
 5. Coffre de preuves
 6. Copilote IA connecté au contexte entreprise
 7. Administration et analytics
+
+
+## Dashboard 5/5
+
+Le cockpit RSE priorise désormais les décisions, les actions de la semaine, le suivi du cycle 90 jours, les preuves et le copilote RSE.
