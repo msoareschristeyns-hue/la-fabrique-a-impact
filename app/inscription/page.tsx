@@ -56,7 +56,7 @@ export default function InscriptionPage() {
   }
 
   return <main className="auth-page"><section className="auth-card auth-card-wide">
-    <Link href="/" className="auth-brand">La Fabrique à Impact</Link><p className="eyebrow">Commencer simplement</p><h1>Créer mon espace entreprise</h1>
+    <Link href="/" className="auth-brand">La Fabrique à Impact</Link><p className="publicEyebrow">COMMENCER SIMPLEMENT</p><h1>Créer mon espace entreprise</h1>
     <p>Quelques informations suffisent. Votre compte et votre espace entreprise sont préparés avant le premier diagnostic RSE.</p>
     <form onSubmit={submit} className="auth-form">
       <div className="auth-grid"><label>Prénom<input required value={form.firstName} onChange={field('firstName')} autoComplete="given-name" /></label><label>Nom<input required value={form.lastName} onChange={field('lastName')} autoComplete="family-name" /></label></div>
