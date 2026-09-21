@@ -5,6 +5,13 @@ import {ArrowLeft,ArrowRight,CheckCircle2,ClipboardCheck,Clock3,Gift,Lightbulb,L
 import styles from './evaluation.module.css';
 
 type Question={q:string;answers:string[]};
+const personalEmailDomains=new Set(['gmail.com','googlemail.com','outlook.com','outlook.fr','hotmail.com','hotmail.fr','live.com','live.fr','msn.com','yahoo.com','yahoo.fr','icloud.com','me.com','mac.com','orange.fr','wanadoo.fr','free.fr','sfr.fr','laposte.net','bbox.fr','proton.me','protonmail.com','gmx.com','gmx.fr']);
+function isProfessionalEmail(email:string){
+ const value=email.trim().toLowerCase();
+ const match=value.match(/^[^\s@]+@([^\s@]+\.[^\s@]+)$/);
+ if(!match)return false;
+ return !personalEmailDomains.has(match[1]);
+}
 const questions:Question[]=[
 {q:"La RSE fait-elle aujourd'hui l'objet d'une réflexion ou d'actions au sein de votre entreprise ?",answers:["Non, pas encore","Une réflexion est en cours","Quelques actions existent","Une démarche RSE est engagée"]},
 {q:"Les décisions prises intègrent-elles, même partiellement, des critères sociaux ou environnementaux ?",answers:["Jamais","Occasionnellement","Souvent, mais de manière informelle","Oui, de manière structurée"]},
@@ -34,6 +41,7 @@ export default function EvaluationRSE(){
  const[contactStep,setContactStep]=useState(false);
  const[resultStep,setResultStep]=useState(false);
  const[contact,setContact]=useState({email:'',firstname:'',lastname:'',company:''});
+ const[contactError,setContactError]=useState('');
  const pct=Math.round(((index+1)/questions.length)*100);
  const raw=answers.reduce((s,v)=>s+Math.max(v,0),0);
  const score=Math.round(raw/(questions.length*3)*100);
@@ -41,11 +49,24 @@ export default function EvaluationRSE(){
  const answered=answers[index]>=0;
  function reset(){setStarted(false);setIndex(0);setAnswers(Array(12).fill(-1));setContactStep(false);setResultStep(false);setContact({email:'',firstname:'',lastname:'',company:''})}
  function next(){if(!answered)return;if(index<questions.length-1)setIndex(index+1);else setContactStep(true)}
- function showResult(e:React.FormEvent){e.preventDefault();localStorage.setItem('fabrique-impact-public-evaluation',JSON.stringify({answers,score,contact,created_at:new Date().toISOString()}));setResultStep(true)}
+ function showResult(e:React.FormEvent){
+   e.preventDefault();
+   setContactError('');
+   if(!contact.firstname.trim()||!contact.lastname.trim()||!contact.company.trim()||!contact.email.trim()){
+     setContactError('Tous les champs sont obligatoires.');
+     return;
+   }
+   if(!isProfessionalEmail(contact.email)){
+     setContactError('Merci d’utiliser une adresse email professionnelle.');
+     return;
+   }
+   localStorage.setItem('fabrique-impact-public-evaluation',JSON.stringify({answers,score,contact,created_at:new Date().toISOString()}));
+   setResultStep(true)
+ }
 
  if(!started)return <main className={styles.page}><section className={styles.intro}><Link href="/" className={styles.logo}><img src="/logo-la-fabrique-impact.svg" alt="La Fabrique à Impact"/></Link><span className={styles.kicker}>AUTO-DIAGNOSTIC RSE · GRATUIT</span><h1>Évaluez la maturité RSE de votre entreprise</h1><p>Un auto-diagnostic rapide et personnalisé pour identifier vos forces et vos axes d'amélioration en matière de responsabilité sociétale.</p><button className={styles.primary} onClick={()=>setStarted(true)}>Commencer l'auto-diagnostic <ArrowRight/></button><div className={styles.badges}><span><Gift/> Gratuit</span><span><Clock3/> 5 minutes</span><span><LockKeyhole/> Confidentiel</span></div></section><section className={styles.how}><h2>Comment ça marche ?</h2><div className={styles.howGrid}><article><i>1</i><ClipboardCheck/><b>Répondez</b><p>12 questions simples sur vos pratiques actuelles</p></article><article><i>2</i><TrendingUp/><b>Découvrez</b><p>Votre dynamique RSE et vos leviers prioritaires</p></article><article><i>3</i><Lightbulb/><b>Progressez</b><p>Des recommandations personnalisées pour avancer</p></article></div></section><section className={styles.trust}><div><Gift/><b>Gratuit</b><span>Sans engagement</span></div><div><LockKeyhole/><b>Confidentiel</b><span>Données protégées</span></div><div><Clock3/><b>5–10 min</b><span>12 questions</span></div><div><Zap/><b>Immédiat</b><span>Résultats instantanés</span></div></section></main>;
 
- if(contactStep&&!resultStep)return <main className={styles.quizPage}><div className={styles.contactCard}><Link href="/" className={styles.smallLogo}><img src="/logo-la-fabrique-impact.svg" alt="La Fabrique à Impact"/></Link><h2>Vos coordonnées</h2><p>Pour personnaliser l'affichage de vos résultats et vous permettre de les conserver.</p><form onSubmit={showResult}><label>Email<input type="email" required value={contact.email} placeholder="votre@email.com" onChange={e=>setContact({...contact,email:e.target.value})}/></label><div className={styles.contactGrid}><label>Prénom<input required value={contact.firstname} onChange={e=>setContact({...contact,firstname:e.target.value})}/></label><label>Nom<input required value={contact.lastname} onChange={e=>setContact({...contact,lastname:e.target.value})}/></label></div><label>Entreprise<input required value={contact.company} onChange={e=>setContact({...contact,company:e.target.value})}/></label><button className={styles.resultButton}>Voir mes résultats</button></form><button className={styles.backText} onClick={()=>setContactStep(false)}><ArrowLeft/> Revenir à la dernière question</button></div></main>;
+ if(contactStep&&!resultStep)return <main className={styles.quizPage}><div className={styles.contactCard}><Link href="/" className={styles.smallLogo}><img src="/logo-la-fabrique-impact.svg" alt="La Fabrique à Impact"/></Link><h2>Vos coordonnées</h2><p>Pour personnaliser l'affichage de vos résultats et vous permettre de les conserver.</p><form onSubmit={showResult}><label>Email professionnel<input type="email" required autoComplete="email" value={contact.email} placeholder="prenom.nom@entreprise.fr" onChange={e=>setContact({...contact,email:e.target.value})}/><small className={styles.fieldHint}>Email professionnel requis</small></label><div className={styles.contactGrid}><label>Prénom<input required autoComplete="given-name" value={contact.firstname} onChange={e=>setContact({...contact,firstname:e.target.value})}/></label><label>Nom<input required autoComplete="family-name" value={contact.lastname} onChange={e=>setContact({...contact,lastname:e.target.value})}/></label></div><label>Entreprise<input required autoComplete="organization" value={contact.company} onChange={e=>setContact({...contact,company:e.target.value})}/></label>{contactError&&<p className={styles.formError}>{contactError}</p>}<button className={styles.resultButton}>Voir mes résultats</button></form><button className={styles.backText} onClick={()=>setContactStep(false)}><ArrowLeft/> Revenir à la dernière question</button></div></main>;
 
  if(resultStep)return <main className={styles.quizPage}><div className={styles.resultCard}><span className={styles.kicker}>VOTRE MATURITÉ RSE</span><div className={styles.score}><b>{score}</b><small>/100</small></div><h1>{maturity.title}</h1><p>{maturity.text}</p><div className={styles.resultActions}><Link className={styles.primaryLink} href="/inscription/">Créer mon espace gratuit <ArrowRight/></Link><Link className={styles.secondaryLink} href="/tarifs/">Découvrir l'offre Premium</Link></div><small>Votre résultat reste accessible sur cet appareil. Aucun compte n'est nécessaire pour réaliser l'évaluation.</small><button className={styles.restart} onClick={reset}><RotateCcw/> Recommencer l'évaluation</button></div></main>;
 
