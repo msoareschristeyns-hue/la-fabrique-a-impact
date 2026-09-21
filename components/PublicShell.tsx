@@ -40,7 +40,7 @@ export default function PublicShell({children}:{children:ReactNode}){
  return <div className="publicSite">
    <header className="publicNav">
      <div className="publicNavInner">
-       <Link href="/" className="publicBrand" onClick={()=>setOpen(false)}><img src="/logo-la-fabrique-impact.svg" alt="La Fabrique à Impact"/></Link>
+       <Link href="/" className="publicBrand" onClick={()=>{setOpen(false);setActiveHash('');if(typeof window!=='undefined')window.history.replaceState(null,'','/')}}><img src="/logo-la-fabrique-impact.svg" alt="La Fabrique à Impact"/></Link>
        <nav className="publicDesktopNav" aria-label="Navigation principale">
          {nav.map(item=><Link key={item.href} href={item.href} onClick={()=>handleNavClick(item.href)} className={`${isActive(item.href)?'active':''} ${item.href.startsWith('/connexion')?'connexionNav':''}`.trim()}>{item.label}</Link>)}
        </nav>
