@@ -1,0 +1,107 @@
+/* Responsive foundation — public + authenticated application */
+html{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{width:100%;max-width:100%;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%}
+main,section,article,header,footer,nav,aside,div{min-width:0}
+button,a,input,select,textarea{max-width:100%}
+
+/* Fluid application canvas */
+.dashMain{min-width:0}
+.appCanvas,.modulePage{min-width:0;max-width:100%}
+.moduleHead,.dashboardHero,.journeyHero{min-width:0}
+.moduleHead h1,.dashboardHero h1,.journeyHero h1{overflow-wrap:anywhere}
+.settingsGrid,.pillarLayout,.priorityGrid,.dashPriorities,.proofGrid,.learningGrid,.capsuleGrid,.workspaceGrid,.libraryGrid,.adminLayout,.metrics,.actionProgress,.progressKpis{min-width:0}
+.settingsGrid>*,.pillarLayout>*,.priorityGrid>*,.dashPriorities>*,.proofGrid>*,.learningGrid>*,.capsuleGrid>*,.workspaceGrid>*,.libraryGrid>*,.adminLayout>*,.metrics>*,.actionProgress>*,.progressKpis>*{min-width:0}
+.actionList article,.journeyTimeline article,.proofGrid article,.workspaceCard,.learningCard,.settingsCard{overflow-wrap:anywhere}
+input,select,textarea{width:100%;min-width:0}
+
+/* Tables and wide content stay usable rather than breaking the viewport */
+.docTable{display:block;width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.rseReport,.brandDocument,.chatPanel{max-width:100%}
+
+/* Desktop: make the first meaningful block fit common laptop screens */
+@media(min-width:1101px){
+  .dashMain{padding-top:clamp(20px,2.4vh,30px)!important;padding-bottom:clamp(36px,5vh,56px)!important}
+  .moduleHead,.dashMain>header,.journeyHero{padding-bottom:clamp(14px,2vh,22px)!important;margin-bottom:clamp(16px,2.3vh,24px)!important}
+  .moduleHead h1,.dashMain>header h1,.journeyHero h1{font-size:clamp(30px,2.25vw,38px)!important}
+  .metrics{margin-bottom:clamp(16px,2.4vh,24px)!important}
+}
+
+/* Compact laptops / tablets landscape */
+@media(max-width:1100px){
+  .container{width:min(100% - 32px,1160px)}
+  .dashMain{padding:24px 22px 44px!important}
+  .metrics,.priorityGrid,.dashPriorities{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .proofGrid,.learningGrid,.capsuleGrid,.workspaceGrid,.libraryGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .reportHero{grid-template-columns:140px minmax(0,1fr)!important;gap:24px!important;padding:30px!important}
+  .reportHero img{width:140px!important}
+}
+
+/* Tablet portrait and phones */
+@media(max-width:760px){
+  :root{--app-gutter:14px}
+  .container{width:min(100% - 28px,1160px)}
+  .dash{padding-top:64px!important}
+  .mobileBar{height:64px!important;padding:9px 14px!important}
+  .mobileBar>a img{width:150px!important}
+  .dashMain{padding:18px 14px 38px!important}
+  .appCanvas,.modulePage{width:100%!important;max-width:100%!important}
+  .moduleHead,.dashMain>header,.journeyHero{margin-bottom:18px!important;padding-bottom:14px!important}
+  .moduleHead h1,.dashMain>header h1,.journeyHero h1{font-size:clamp(27px,8vw,34px)!important;line-height:1.08!important}
+  .moduleHead p,.dashMain>header p,.journeyHero p{font-size:13px!important;line-height:1.5!important}
+  .metrics,.priorityGrid,.dashPriorities,.proofGrid,.learningGrid,.capsuleGrid,.workspaceGrid,.libraryGrid,.progressKpis,.actionProgress,.settingsGrid,.adminLayout{grid-template-columns:1fr!important}
+  .pillarLayout,.two,.proofFields,.copilotHead{grid-template-columns:1fr!important}
+  .metrics article,.settingsCard,.proofForm,.progressSection,.pillarResults,.onboardingCard{padding:16px!important}
+  .sectionTitle{align-items:flex-start!important;gap:10px!important}
+  .sectionTitle h2{font-size:19px!important}
+  .actionList article{grid-template-columns:30px minmax(0,1fr)!important;padding:14px!important}
+  .actionList article>.proofButton{grid-column:1/-1!important}
+  .roadmapPhase>header{gap:10px!important}
+  .proofHeader,.proofSectionTitle,.nextStep,.onboardingCard,.reportBanner,.copilotBar{gap:12px!important}
+  .proofHeader .button,.nextStep .button,.onboardingCard .button,.reportBanner>a,.copilotCta{width:100%!important}
+  .reportIdentity{grid-template-columns:1fr!important}
+  .reportHero{grid-template-columns:1fr!important;padding:22px!important}
+  .reportHero img{width:150px!important}
+  .reportSection,.rseReport footer{padding:20px!important}
+  .reportScores>div{grid-template-columns:1fr!important}
+  .reportProofs{grid-template-columns:1fr!important}
+  .brandDocumentHeader{min-height:auto!important;padding:34px 22px 58px!important}
+  .brandDocumentHeader h1{font-size:clamp(34px,10vw,46px)!important}
+  .docBody{padding:30px 20px 42px!important}
+  .docPriorityGrid,.docRoadmap,.docExecutiveGrid,.docValidationGrid{grid-template-columns:1fr!important}
+  .brandDocument>footer{padding:16px 20px!important}
+  .quickPrompts,.contextStrip{overflow-x:auto;scrollbar-width:thin}
+}
+
+/* Small phones */
+@media(max-width:480px){
+  .container{width:min(100% - 22px,1160px)}
+  .mobileBar>a img{width:138px!important}
+  .dashMain{padding:16px 11px 34px!important}
+  .button,.btn,.secondaryButton{width:100%;min-height:44px}
+  .globalScore{width:100%!important}
+  .scoreLink{align-items:center!important}
+  .scoreLink .scoreValue{justify-content:center!important}
+  .scoreLink em{justify-content:center!important}
+  .weeklyPanel{padding:17px!important;border-radius:15px!important}
+  .weeklyPanelHead h2{font-size:23px!important}
+  .weeklyGrid{gap:8px!important}
+  .weeklyAction{padding:13px!important}
+  .scoreExplainer{padding:17px!important;border-radius:15px!important}
+  .scoreIntro h2{font-size:24px!important}
+  .scoreGauge{min-height:108px!important}
+  .scoreBreakdown,.scoreLevers,.dashboardStatusGrid,.dashboardFooterActions{grid-template-columns:1fr!important}
+  .journeyTimeline article{grid-template-columns:36px minmax(0,1fr)!important;padding:14px!important;gap:11px!important}
+  .journeyStepIcon{width:36px!important;height:36px!important}
+  .chatInput{grid-template-columns:minmax(0,1fr) 42px!important}
+  .auth-card{padding:24px!important;border-radius:15px!important}
+  .auth-card h1{font-size:34px!important}
+}
+
+/* Landscape phones: preserve usable vertical space */
+@media(max-height:650px) and (min-width:761px){
+  .dashMain{padding-top:16px!important}
+  .moduleHead,.dashMain>header,.journeyHero{padding-bottom:12px!important;margin-bottom:14px!important}
+  .moduleHead h1,.dashMain>header h1,.journeyHero h1{font-size:30px!important}
+  .metrics article{min-height:76px!important}
+}
