@@ -1,3 +1,11 @@
+
+/* Unified typography — entire public + private product */
+:root{--font-ui:Inter,Arial,sans-serif;--font-display:Georgia,'Times New Roman',serif}
+body,button,input,select,textarea,.publicSite,.dash{font-family:var(--font-ui)!important}
+.publicSite p,.publicSite li,.publicSite a,.publicSite button,.publicSite span,.publicSite small,.dash p,.dash li,.dash a,.dash button,.dash span,.dash small{font-family:var(--font-ui)}
+.publicSite h1,.publicSite h2,.publicSite .displayTitle,.dash h1,.dash .displayTitle{font-family:var(--font-display)!important}
+.publicSite h3,.publicSite h4,.dash h2,.dash h3,.dash h4{font-family:var(--font-ui)!important}
+.publicDesktopNav a,.publicCta,.publicMobileNav a{font-family:var(--font-ui)!important}
 /* Responsive foundation — public + authenticated application */
 html{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
 body{width:100%;max-width:100%;overflow-x:hidden}
