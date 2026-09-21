@@ -19,3 +19,12 @@
 .required{color:#64aa86;font-weight:600;margin-left:2px}
 .contactCard form label{font-weight:500;color:#294f58}
 .contactCard form label input{font-weight:400;color:#153b46}
+
+/* Align evaluation hero with the other public pages */
+.intro{padding-top:44px}
+.intro .kicker{display:inline-flex;margin:0 auto 14px;align-items:center;justify-content:center}
+.intro h1{margin-top:0}
+@media(max-width:760px){
+ .intro{padding-top:30px}
+ .intro .kicker{margin-bottom:12px}
+}
