@@ -16,3 +16,24 @@
 .cycleCallout small{font-size:9px;letter-spacing:1px;font-weight:900;color:#72c79a}.cycleCallout h3{font:29px Georgia,serif;margin:7px 0}.cycleCallout p{margin:0;color:#bad0d1;font-size:12px}.cycleCallout a{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:12px;font-weight:900;white-space:nowrap}.cycleCallout a svg{width:16px;color:#72c79a}
 @media(max-width:900px){.compareGrid,.valueGrid{grid-template-columns:1fr 1fr}.valueGrid article:nth-child(2){border-right:0}.valueGrid article{border-bottom:1px solid #dce7e5}.cycleCallout{align-items:flex-start;flex-direction:column}}
 @media(max-width:650px){.aboutSection{padding:50px 0 42px}.aboutHead h2{font-size:31px}.compareGrid,.valueGrid{grid-template-columns:1fr}.valueGrid article{border-right:0}.compareGrid article{padding:21px}.cycleCallout{padding:22px}.cycleCallout h3{font-size:25px}}
+
+/* Full responsive pass — public homepage */
+@media(max-width:1180px){
+ .hero{grid-template-columns:minmax(0,1fr) minmax(390px,.9fr);gap:34px;padding-left:20px;padding-right:20px}
+ .nav{padding-left:20px;padding-right:20px}
+ .title{font-size:clamp(39px,4.4vw,52px)}
+}
+@media(max-width:900px){
+ .hero{grid-template-columns:1fr;min-height:auto;padding-top:34px}
+ .heroCopy{max-width:720px}.journeyCard{justify-self:stretch;max-width:none}
+ .title{max-width:720px}.title em{max-width:650px}
+}
+@media(max-width:650px){
+ .nav{padding-left:14px;padding-right:14px}.navLinks .primary{width:auto;padding:10px 12px;font-size:11px}
+ .hero{padding-left:14px;padding-right:14px;gap:26px}
+ .title{font-size:clamp(34px,10.8vw,42px);line-height:1.02;letter-spacing:-1px}
+ .title em{font-size:.58em;line-height:1.14;margin-top:.3em;letter-spacing:-.25px}
+ .lead{font-size:15px}.benefits{margin-top:18px}.benefits li{font-size:12px}
+ .journeyHead h2{font-size:19px}.step{grid-template-columns:31px minmax(0,1fr)}.stepStatus{grid-column:2;justify-self:start}
+ .journeyCta{align-items:flex-start;flex-direction:column}
+}
