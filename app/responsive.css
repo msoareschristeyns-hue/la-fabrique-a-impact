@@ -217,3 +217,14 @@ input,select,textarea{width:100%;min-width:0}
 @media(max-width:520px){
  .publicEyebrow{padding:7px 11px!important;font-size:9px!important;letter-spacing:.5px!important}
 }
+
+/* Public navigation section markers: use the same left alignment as "La Fabrique à Impact". */
+.publicEyebrow.publicMenuEyebrow{
+ display:flex!important;
+ width:max-content!important;
+ max-width:100%!important;
+ margin-left:0!important;
+ margin-right:auto!important;
+ text-align:left!important;
+}
+
