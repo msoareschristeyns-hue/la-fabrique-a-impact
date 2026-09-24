@@ -51,7 +51,7 @@ export default function Tarifs(){
   const monthly=annual?80:100;
   return <main className={styles.page}>
     <section className={styles.hero}>
-      <span className="publicEyebrow">LA RSE QUI RENFORCE LA PERFORMANCE DE VOTRE ENTREPRISE</span>
+      <span className="publicEyebrow publicMenuEyebrow">LA RSE QUI RENFORCE LA PERFORMANCE DE VOTRE ENTREPRISE</span>
       <h1>Choisissez votre offre</h1>
       <p>Pas du reporting. Pas du greenwashing. Un outil structurant, accessible par abonnement, pour aider chaque TPE/PME à initier ou renforcer une démarche RSE claire, mesurable et alignée avec ses priorités business.</p>
       <div className={styles.toggleWrap}>
