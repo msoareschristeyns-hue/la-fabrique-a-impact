@@ -145,7 +145,6 @@ export default function LearningPage(){
           <h1>Poser les bases d’une démarche RSE qui tient la route.</h1>
           <p>Avancez bloc par bloc, validez les contenus recommandés puis passez au diagnostic quand vous êtes prêt.</p>
         </div>
-        {isAdmin&&<Link className="adminShortcut" href="/admin/"><Settings2/> Gérer les contenus</Link>}
       </div>
       <div className="learningGlobalProgress">
         <div><span>Progression de l’étape</span><b>{stepPct}%</b></div>
