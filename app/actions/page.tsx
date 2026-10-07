@@ -7,6 +7,7 @@ import {supabase} from '../../lib/supabase';
 import {buildActionRows} from '../../lib/actionPlan';
 import {resources} from '../../lib/library';
 import {recommendLibrary} from '../../lib/libraryRecommendations';
+import PilotageBar from '../../components/PilotageBar';
 
 type Status='todo'|'in_progress'|'done';
 type MemberRole='owner'|'admin'|'member'|'advisor'|'';
@@ -185,13 +186,10 @@ export default function Actions(){
   if(error&&!companyId)return <div className="modulePage"><span className="kicker">PLAN D’ACTION</span><h1>Votre plan d’action est temporairement indisponible.</h1><p className="actionLead">{error}</p><div className="nextStep"><div><AlertCircle/><b>Aucune donnée fictive n’est affichée.</b></div><Link className="button" href="/dashboard/">Retour au tableau de bord</Link></div></div>;
 
   return <div className="modulePage actionPage">
-    <div className="actionTop">
-      <div><span className="kicker">PILOTAGE · 90 JOURS</span><h1>Plan d’action</h1><p>Créez, modifiez et pilotez vos actions sans quitter cette page.</p></div>
-      <div className="topButtons">
-        {priorities.length===3&&<button className="secondaryBtn" onClick={generateFromPriorities} disabled={saving}><Sparkles/> Générer depuis mes priorités</button>}
-        <button className="primaryBtn" onClick={openCreate}><Plus/> Nouvelle action</button>
-      </div>
-    </div>
+    <PilotageBar eyebrow="PILOTAGE · 90 JOURS" title="Plan d’action" description="Créez, modifiez et pilotez vos actions sans quitter cette page." actions={<>
+      {priorities.length===3&&<button className="secondaryBtn" onClick={generateFromPriorities} disabled={saving}><Sparkles/> Générer depuis mes priorités</button>}
+      <button className="primaryBtn" onClick={openCreate}><Plus/> Nouvelle action</button>
+    </>}/>
 
     {!hasDiagnostic&&<div className="infoStrip"><AlertCircle/><span>Vous pouvez démarrer votre plan manuellement dès maintenant. Le diagnostic permettra ensuite de proposer des actions liées à vos 3 priorités.</span><Link href="/diagnostic/">Faire le diagnostic</Link></div>}
     {notice&&<div className="successStrip"><CheckCircle2/>{notice}</div>}
