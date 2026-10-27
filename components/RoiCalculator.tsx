@@ -1,62 +1,159 @@
 'use client';
-import {useMemo, useState} from 'react';
-import {Calculator,TrendingUp} from 'lucide-react';
+import {useMemo,useState} from 'react';
+import {Calculator,TrendingUp,FileText,RotateCcw} from 'lucide-react';
+import styles from './RoiCalculator.module.css';
 
-const euro=(value:number)=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(value);
+type Activity={
+  id:string;
+  title:string;
+  detail:string;
+  count:number;
+  before:number;
+  after:number;
+};
 
-/** Simulateur partagé entre la page Tarifs et la page ROI. */
+const examples:Activity[]=[
+  {id:'documents',title:'Création de documents RSE',detail:'Chartes, procédures, politiques, supports rédigés avec les modèles.',count:2,before:90,after:45},
+  {id:'questionnaires',title:'Réponses aux questionnaires clients',detail:'Demandes RSE / ESG, formulaires donneurs d’ordres, préparation des réponses.',count:2,before:60,after:35},
+  {id:'preuves',title:'Recherche et classement des preuves',detail:'Retrouver une attestation, joindre un justificatif, classer les documents.',count:6,before:15,after:7},
+  {id:'actions',title:'Suivi des actions et relances',detail:'Mise à jour des plans d’action, coordination, rappels et suivi des responsables.',count:4,before:25,after:15},
+  {id:'reporting',title:'Préparation des synthèses RSE',detail:'Bilan de progression, préparation de réunions, synthèse des indicateurs.',count:1,before:90,after:50},
+  {id:'sensibilisation',title:'Préparation des sensibilisations',detail:'Supports et contenus pour sensibiliser les collaborateurs.',count:0,before:60,after:30}
+];
+
+const euro=(v:number)=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(v);
+const numberFR=(v:number,digits=1)=>new Intl.NumberFormat('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:digits}).format(v);
+const clamp=(v:number,max:number)=>Number.isFinite(v)?Math.min(Math.max(0,v),max):0;
+
 export default function RoiCalculator({annual=false}:{annual?:boolean}){
-  const [hours,setHours]=useState(2);
-  const [hourlyRate,setHourlyRate]=useState(30);
-  const [otherSavings,setOtherSavings]=useState(0);
-  const monthly=annual?40:50;
-  const annualCost=monthly*12;
-  const roi=useMemo(()=>{
-    const monthlyTimeValue=hours*4.33*hourlyRate;
-    const monthlyBenefits=monthlyTimeValue+otherSavings;
-    const net=monthlyBenefits-monthly;
-    return {monthlyTimeValue,monthlyBenefits,net,annualNet:net*12,roiPercent:monthly>0?(net/monthly)*100:0};
-  },[hours,hourlyRate,otherSavings,monthly]);
-  return (
-    <section id="simulateur-roi" aria-label="Simulateur de retour sur investissement" style={{scrollMarginTop:110,width:'min(940px,calc(100% - 40px))',margin:'0 auto 64px',display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,300px),1fr))',gap:22,alignItems:'start'}}>
-      <div style={{padding:'26px',border:'1px solid #dce7e5',borderRadius:16,background:'#fff'}}>
-        <span className="publicEyebrow" style={{display:'inline-flex',alignItems:'center',gap:7}}><Calculator size={16}/> SIMULATEUR DE RENTABILITÉ</span>
-        <h2 style={{font:'30px Georgia,serif',margin:'10px 0'}}>Quel retour sur investissement pour votre PME ?</h2>
-        <p style={{color:'#667c82',fontSize:13,lineHeight:1.6}}>Estimez la valeur du temps que votre équipe pourrait économiser grâce à une démarche RSE mieux structurée : priorités claires, modèles prêts à l’emploi, suivi des actions et preuves centralisées.</p>
-        <label style={{display:'block',fontSize:12,fontWeight:700,marginTop:18}}>Temps potentiellement économisé par semaine : <b>{hours} h</b></label>
-        <input aria-label="Heures économisées par semaine" type="range" min="0" max="10" step="0.5" value={hours} onChange={e=>setHours(Number(e.target.value))} style={{width:'100%',accentColor:'#0797d5',marginTop:8}}/>
-        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#71868a'}}><span>0 h</span><span>10 h</span></div>
-        <label style={{display:'block',fontSize:12,fontWeight:700,marginTop:18}} htmlFor="hourly-rate">Coût horaire chargé estimé (€)</label>
-        <input id="hourly-rate" type="number" min="0" max="500" value={hourlyRate} onChange={e=>setHourlyRate(Math.max(0,Number(e.target.value)||0))} style={{width:'100%',boxSizing:'border-box',padding:'11px 12px',border:'1px solid #dce7e5',borderRadius:8,marginTop:7,fontSize:14}}/>
-        <label style={{display:'block',fontSize:12,fontWeight:700,marginTop:18}} htmlFor="other-savings">Autres gains mensuels estimés (€), facultatif</label>
-        <input id="other-savings" type="number" min="0" max="100000" value={otherSavings} onChange={e=>setOtherSavings(Math.max(0,Number(e.target.value)||0))} style={{width:'100%',boxSizing:'border-box',padding:'11px 12px',border:'1px solid #dce7e5',borderRadius:8,marginTop:7,fontSize:14}}/>
-        <p style={{fontSize:10,color:'#71868a',lineHeight:1.5,marginTop:16}}>Les heures économisées et les autres gains sont vos hypothèses, à ajuster selon votre organisation. Il ne s’agit pas de gains garantis.</p>
+  const[activities,setActivities]=useState<Activity[]>(()=>examples.map(x=>({...x})));
+  const[hourlyRate,setHourlyRate]=useState(30);
+  const[avoidedCosts,setAvoidedCosts]=useState(0);
+  const[setupHours,setSetupHours]=useState(3);
+  const[setupExpenses,setSetupExpenses]=useState(0);
+  const subscriptionMonthly=annual?40:50;
+
+  const report=useMemo(()=>{
+    const breakdown=activities.map(a=>({id:a.id,monthlyHours:(a.count*(a.before-a.after))/60}));
+    const monthlyHours=breakdown.reduce((total,a)=>total+a.monthlyHours,0);
+    const monthlyTimeValue=monthlyHours*hourlyRate;
+    const monthlyBenefit=monthlyTimeValue+avoidedCosts;
+    const monthlyNet=monthlyBenefit-subscriptionMonthly;
+    const annualBenefits=monthlyBenefit*12;
+    const annualCosts=subscriptionMonthly*12+setupHours*hourlyRate+setupExpenses;
+    const annualNet=annualBenefits-annualCosts;
+    const annualROI=annualCosts>0?(annualNet/annualCosts)*100:0;
+    return {breakdown,monthlyHours,monthlyTimeValue,monthlyBenefit,monthlyNet,annualBenefits,annualCosts,annualNet,annualROI};
+  },[activities,hourlyRate,avoidedCosts,setupHours,setupExpenses,subscriptionMonthly]);
+
+  const change=(id:string,field:'count'|'before'|'after',value:number)=>{
+    setActivities(items=>items.map(item=>item.id===id?{...item,[field]:clamp(value,field==='count'?1000:1440)}:item));
+  };
+  const clear=()=>{
+    setActivities(examples.map(x=>({...x,count:0})));
+    setHourlyRate(30);
+    setAvoidedCosts(0);
+    setSetupHours(0);
+    setSetupExpenses(0);
+  };
+  const restore=()=>{
+    setActivities(examples.map(x=>({...x})));
+    setHourlyRate(30);
+    setAvoidedCosts(0);
+    setSetupHours(3);
+    setSetupExpenses(0);
+  };
+
+  return <section id="simulateur-roi" aria-label="Simulateur de retour sur investissement" className={styles.section}>
+    <div className={styles.intro}>
+      <div>
+        <span className={styles.eyebrow}><Calculator size={16}/> SIMULATEUR ROI</span>
+        <h2>Calculez les gains activité par activité</h2>
+        <p>Combien de documents créez-vous, de demandes clients traitez-vous et de preuves recherchez-vous ? Comparez votre temps actuel au temps estimé avec La Fabrique à Impact pour une simulation adaptée à votre entreprise.</p>
       </div>
-      <div style={{padding:'26px',borderRadius:16,background:'#153b46',color:'#fff'}}>
-        <span style={{display:'inline-flex',alignItems:'center',gap:7,fontSize:10,fontWeight:900,letterSpacing:1,color:'#9de0c0'}}><TrendingUp size={16}/> VOTRE ESTIMATION</span>
-        <h3 style={{font:'28px Georgia,serif',margin:'12px 0 4px'}}>Avec l’offre {annual?'annuelle':'mensuelle'}</h3>
-        <p style={{fontSize:12,color:'#d2e2e3',marginTop:0}}>Abonnement : {euro(monthly)} HT/mois</p>
-        <div style={{borderTop:'1px solid #45666e',paddingTop:16,marginTop:18}}>
-          <div style={{fontSize:11,color:'#d2e2e3'}}>Valeur mensuelle du temps économisé</div>
-          <div style={{fontSize:25,fontWeight:800,marginTop:4}}>{euro(roi.monthlyTimeValue)}</div>
-        </div>
-        <div style={{paddingTop:16}}>
-          <div style={{fontSize:11,color:'#d2e2e3'}}>Gains mensuels estimés au total</div>
-          <div style={{fontSize:25,fontWeight:800,marginTop:4}}>{euro(roi.monthlyBenefits)}</div>
-        </div>
-        <div style={{paddingTop:16}}>
-          <div style={{fontSize:11,color:'#d2e2e3'}}>Solde estimé après abonnement</div>
-          <div style={{fontSize:25,fontWeight:800,marginTop:4,color:roi.net>=0?'#9de0c0':'#ffd1bd'}}>{roi.net>=0?'+':''}{euro(roi.net)} / mois</div>
-        </div>
-        <div style={{paddingTop:16}}>
-          <div style={{fontSize:11,color:'#d2e2e3'}}>Retour sur coût de l’abonnement (estimation)</div>
-          <div style={{fontSize:25,fontWeight:800,marginTop:4}}>{Math.round(roi.roiPercent)} %</div>
-        </div>
-        <div style={{borderTop:'1px solid #45666e',paddingTop:16,marginTop:18,fontSize:12,lineHeight:1.6}}>
-          Sur 12 mois : coût de l’abonnement <b>{euro(annualCost)} HT</b>. Solde estimé après abonnement : <b>{euro(roi.annualNet)}</b>.
-        </div>
-        <p style={{fontSize:10,color:'#d2e2e3',lineHeight:1.5,marginBottom:0}}>Calcul indicatif : (gains estimés − abonnement) ÷ abonnement. La plateforme peut aussi contribuer à la coordination, à la préparation des réponses clients et à la centralisation des preuves, sans valorisation automatique de ces bénéfices.</p>
+      <div className={styles.controls}>
+        <button type="button" className={styles.secondaryButton} onClick={restore}><RotateCcw size={14}/> Exemple</button>
+        <button type="button" className={styles.secondaryButton} onClick={clear}>Partir de zéro</button>
       </div>
-    </section>
-  );
+    </div>
+    <div className={styles.mainGrid}>
+      <div className={styles.workPanel}>
+        <h3 className={styles.panelHeading}><FileText size={19} style={{verticalAlign:'middle',marginRight:8}}/>Vos activités RSE</h3>
+        <p className={styles.hint}>Pour chaque activité, indiquez son nombre de réalisations <strong>par mois</strong>, puis les minutes nécessaires <strong>aujourd’hui</strong> et <strong>avec la plateforme</strong>. Les chiffres proposés sont des exemples modifiables, pas des gains constatés.</p>
+        {activities.map(item=>{
+          const monthlyHours=report.breakdown.find(x=>x.id===item.id)?.monthlyHours??0;
+          const negative=monthlyHours<0;
+          return <div className={styles.activity} key={item.id}>
+            <div className={styles.activityHeading}>
+              <div>
+                <h4 className={styles.activityTitle}>{item.title}</h4>
+                <p className={styles.activityDescription}>{item.detail}</p>
+              </div>
+              <span className={styles.activitySave+(negative?' '+styles.activityLoss:'')}>
+                {monthlyHours>0?'+':''}{numberFR(monthlyHours)} h/mois
+              </span>
+            </div>
+            <div className={styles.fields}>
+              <label className={styles.field} htmlFor={'roi-'+item.id+'-count'}>
+                <span>Nombre / mois</span>
+                <input id={'roi-'+item.id+'-count'} type="number" min={0} max={1000} step={1} value={item.count} onChange={e=>change(item.id,'count',Number(e.target.value))}/>
+              </label>
+              <label className={styles.field} htmlFor={'roi-'+item.id+'-before'}>
+                <span>Avant (min / activité)</span>
+                <input id={'roi-'+item.id+'-before'} type="number" min={0} max={1440} step={5} value={item.before} onChange={e=>change(item.id,'before',Number(e.target.value))}/>
+              </label>
+              <label className={styles.field} htmlFor={'roi-'+item.id+'-after'}>
+                <span>Avec la plateforme (min)</span>
+                <input id={'roi-'+item.id+'-after'} type="number" min={0} max={1440} step={5} value={item.after} onChange={e=>change(item.id,'after',Number(e.target.value))}/>
+              </label>
+            </div>
+          </div>;
+        })}
+        <div className={styles.settings}>
+          <h3 className={styles.panelHeading}>Vos hypothèses financières</h3>
+          <p className={styles.hint}>Ces paramètres sont utilisés pour valoriser le temps libéré et tenir compte du coût de mise en place la première année.</p>
+          <div className={styles.settingsGrid}>
+            <label className={styles.field} htmlFor="roi-hourly"><span>Coût horaire chargé (€ / h)</span><input id="roi-hourly" type="number" min={0} max={500} value={hourlyRate} onChange={e=>setHourlyRate(clamp(Number(e.target.value),500))}/></label>
+            <label className={styles.field} htmlFor="roi-other"><span>Dépenses réellement évitées (€ / mois)</span><input id="roi-other" type="number" min={0} max={100000} value={avoidedCosts} onChange={e=>setAvoidedCosts(clamp(Number(e.target.value),100000))}/></label>
+            <label className={styles.field} htmlFor="roi-setup-hours"><span>Temps initial de mise en route (h)</span><input id="roi-setup-hours" type="number" min={0} max={1000} step={0.5} value={setupHours} onChange={e=>setSetupHours(clamp(Number(e.target.value),1000))}/></label>
+            <label className={styles.field} htmlFor="roi-setup-cost"><span>Autres frais initiaux (€ HT)</span><input id="roi-setup-cost" type="number" min={0} max={100000} value={setupExpenses} onChange={e=>setSetupExpenses(clamp(Number(e.target.value),100000))}/></label>
+          </div>
+          <p className={styles.notes}>Ne renseignez dans « dépenses évitées » que les charges effectivement supprimées, en dehors du temps valorisé ci-dessus. Aucun gain commercial, environnemental ou réglementaire n’est chiffré automatiquement.</p>
+        </div>
+      </div>
+      <aside className={styles.results} aria-label="Résultats de la simulation" aria-live="polite">
+        <div className={styles.resultEyebrow}><TrendingUp size={17}/> ESTIMATION ACTUALISÉE</div>
+        <h3>Vos résultats</h3>
+        <p className={styles.summaryPrice}>Abonnement {annual?'annuel':'mensuel'} : <strong>{euro(subscriptionMonthly)} HT / mois</strong></p>
+        <div className={styles.kpi}>
+          <div className={styles.kpiLabel}>Temps libéré estimé chaque mois</div>
+          <div className={styles.kpiValue}>{numberFR(report.monthlyHours)} h</div>
+        </div>
+        <div className={styles.kpi}>
+          <div className={styles.kpiLabel}>Valeur mensuelle du temps libéré</div>
+          <div className={styles.kpiValue}>{euro(report.monthlyTimeValue)}</div>
+        </div>
+        <div className={styles.kpi}>
+          <div className={styles.kpiLabel}>Bénéfice mensuel estimé, temps et charges évitées</div>
+          <div className={styles.kpiValue}>{euro(report.monthlyBenefit)}</div>
+        </div>
+        <div className={styles.kpi}>
+          <div className={styles.kpiLabel}>Solde mensuel après abonnement, hors mise en route</div>
+          <div className={styles.kpiValue+' '+(report.monthlyNet>=0?styles.highlight:styles.negative)}>{report.monthlyNet>0?'+':''}{euro(report.monthlyNet)}</div>
+        </div>
+        <div className={styles.annual}>
+          <div className={styles.annualLabel}>Bilan net sur 12 mois, mise en route incluse</div>
+          <div className={styles.annualValue+' '+(report.annualNet>=0?styles.highlight:styles.negative)}>{report.annualNet>0?'+':''}{euro(report.annualNet)}</div>
+          <div className={styles.metrics}>
+            <div><span>Bénéfices estimés sur 12 mois</span><b>{euro(report.annualBenefits)}</b></div>
+            <div><span>Abonnement sur 12 mois</span><b>{euro(subscriptionMonthly*12)}</b></div>
+            <div><span>Coût de mise en route valorisé</span><b>{euro(setupHours*hourlyRate+setupExpenses)}</b></div>
+            <div><span>Total des coûts pris en compte</span><b>{euro(report.annualCosts)}</b></div>
+            <div><span>ROI estimé de la 1re année</span><b>{numberFR(report.annualROI,0)} %</b></div>
+          </div>
+        </div>
+        <p className={styles.disclaimer}>Méthode : nombre de tâches × différence de minutes ÷ 60 × coût horaire, plus les dépenses réellement évitées. Le ROI annuel correspond au bilan net divisé par les coûts inclus. Les gains de temps valorisés ne sont pas nécessairement des économies de trésorerie. Résultats indicatifs, à vérifier avec vos propres données.</p>
+      </aside>
+    </div>
+  </section>;
 }
