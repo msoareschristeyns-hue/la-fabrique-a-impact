@@ -10,6 +10,7 @@ const nav=[
  {href:'/#solution',label:'La plateforme'},
  {href:'/evaluation-rse/',label:'Évaluation RSE'},
  {href:'/tarifs/',label:'Tarifs'},
+ {href:'/roi/',label:'Simulateur ROI'},
  {href:'/connexion/',label:'Connexion'},
 ] as const;
 
@@ -25,6 +26,7 @@ export default function PublicShell({children}:{children:ReactNode}){
  },[pathname]);
  const isActive=(href:string)=>{
    if(href.startsWith('/tarifs'))return pathname.startsWith('/tarifs');
+   if(href.startsWith('/roi'))return pathname.startsWith('/roi');
    if(href.startsWith('/evaluation-rse'))return pathname.startsWith('/evaluation-rse');
    if(href.startsWith('/connexion'))return pathname.startsWith('/connexion');
    if(pathname!=='/')return false;
