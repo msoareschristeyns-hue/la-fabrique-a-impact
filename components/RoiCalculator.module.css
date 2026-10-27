@@ -1,0 +1,47 @@
+.section{width:min(1040px,calc(100% - 40px));margin:0 auto 60px;scroll-margin-top:110px}
+.intro{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:900;letter-spacing:1px;color:#478a69}
+.intro h2{font-family:Georgia,serif;font-size:clamp(26px,3vw,34px);line-height:1.2;margin:9px 0;color:#153b46}
+.intro p{font-size:13px;line-height:1.65;color:#607980;max-width:760px;margin:0}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+.secondaryButton{border:1px solid #c7dbd6;background:#fff;color:#194651;font-size:12px;font-weight:750;border-radius:9px;padding:10px 13px;cursor:pointer;white-space:nowrap}
+.secondaryButton:hover{background:#ecf5f2}
+.mainGrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(285px,.95fr);align-items:start;gap:20px}
+.workPanel{border:1px solid #dce7e5;background:#fff;border-radius:18px;padding:23px;box-shadow:0 8px 25px #102f3908;min-width:0}
+.panelHeading{font-size:17px;font-weight:800;margin:0 0 6px;color:#153b46}
+.hint{font-size:11px;line-height:1.6;color:#677f85;margin:0 0 17px}
+.activity{padding:16px 0;border-top:1px solid #e5efeb}
+.activity:first-of-type{border-top:0}
+.activityHeading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.activityTitle{font-size:14px;font-weight:800;color:#153b46;margin:0}
+.activityDescription{font-size:11px;line-height:1.5;color:#70868c;margin:4px 0 0}
+.activitySave{font-size:11px;color:#21734e;background:#eaf5ef;padding:5px 8px;border-radius:999px;white-space:nowrap;font-weight:800}
+.activityLoss{background:#fff1e9;color:#ae5935}
+.fields{display:grid;grid-template-columns:1.05fr 1fr 1fr;gap:9px}
+.field{min-width:0;display:block}
+.field span{display:block;font-size:10px;color:#566e75;font-weight:750;line-height:1.35;min-height:27px}
+.field input{width:100%;min-width:0;border:1px solid #cddfda;border-radius:9px;padding:10px 9px;font-size:14px;color:#153b46;background:#fbfdfc}
+.field input:focus{outline:2px solid #0797d5;outline-offset:1px}
+.settings{padding:19px 0 0;margin-top:7px;border-top:1px solid #dce7e5}
+.settingsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.settings .field span{min-height:36px}
+.settings .field input{background:#fff}
+.notes{font-size:10px;color:#71868a;line-height:1.55;margin:13px 0 0}
+.results{position:sticky;top:20px;background:#153b46;border-radius:18px;color:#fff;padding:25px;min-width:0}
+.resultEyebrow{display:flex;align-items:center;gap:8px;color:#a3e2c5;letter-spacing:1px;font-size:10px;font-weight:850}
+.results h3{font-family:Georgia,serif;font-size:27px;line-height:1.2;font-weight:600;margin:12px 0}
+.summaryPrice{font-size:12px;color:#d0e1e5;margin:0 0 13px}
+.kpi{padding:15px 0;border-top:1px solid #42626a}
+.kpiLabel{color:#d3e5e6;font-size:11px;line-height:1.4}
+.kpiValue{font-size:25px;line-height:1.25;font-weight:850;margin-top:5px;font-variant-numeric:tabular-nums}
+.highlight{color:#a4e9c3}
+.negative{color:#ffd0c1}
+.annual{padding:17px 0 0;margin-top:4px;border-top:1px solid #42626a}
+.annualLabel{font-size:11px;color:#cfe0e3}
+.annualValue{font-size:29px;font-weight:850;line-height:1.25;margin-top:5px;font-variant-numeric:tabular-nums}
+.metrics{display:grid;gap:6px;font-size:11px;line-height:1.6;color:#d3e2e5;padding-top:13px}
+.metrics div{display:flex;justify-content:space-between;gap:10px}
+.metrics b{color:#fff;font-variant-numeric:tabular-nums}
+.disclaimer{font-size:10px;line-height:1.6;color:#bdd1d3;margin:17px 0 0}
+@media(max-width:850px){.mainGrid{grid-template-columns:1fr}.results{position:static}.intro{flex-direction:column}.controls{justify-content:flex-start}}
+@media(max-width:520px){.section{width:calc(100% - 28px)}.workPanel,.results{padding:17px}.fields{gap:6px}.field span{font-size:9px;min-height:38px}.field input{padding:10px 7px}.settingsGrid{grid-template-columns:1fr 1fr}.intro h2{font-size:28px}.activityHeading{align-items:flex-start}.activitySave{font-size:10px}}
