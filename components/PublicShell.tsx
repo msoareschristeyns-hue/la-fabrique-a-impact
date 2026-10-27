@@ -9,8 +9,8 @@ const nav=[
  {href:'/#methode',label:'La méthode'},
  {href:'/#solution',label:'La plateforme'},
  {href:'/evaluation-rse/',label:'Évaluation RSE'},
- {href:'/tarifs/',label:'Tarifs'},
  {href:'/roi/',label:'Simulateur ROI'},
+ {href:'/tarifs/',label:'Tarifs'},
  {href:'/connexion/',label:'Connexion'},
 ] as const;
 
